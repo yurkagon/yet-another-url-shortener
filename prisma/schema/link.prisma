@@ -1,0 +1,15 @@
+model Link {
+  id          String @id @default(uuid())
+  originalUrl String @map("original_url")
+  shortCode   String @unique @map("short_code")
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String @map("user_id")
+
+  clicks Click[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("links")
+}
