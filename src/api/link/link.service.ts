@@ -48,6 +48,18 @@ export class LinkService {
     return link;
   }
 
+  public async delete(shortCode: string, user: User): Promise<void> {
+    const link = await this.findByShortCode(shortCode);
+
+    if (link.userId !== user.id) {
+      throw new NotFoundException('Link not found');
+    }
+
+    await this.prismaService.link.delete({
+      where: { id: link.id },
+    });
+  }
+
   public async resolveRedirect(
     shortCode: string,
     ipAddress: string,
