@@ -1,8 +1,8 @@
 model Click {
   id String @id @default(uuid())
 
-  link   Link   @relation(fields: [linkId], references: [id], onDelete: Cascade)
-  linkId String @map("link_id")
+  link Link   @relation(fields: [code], references: [code], onDelete: Cascade)
+  code String
 
   ipAddress String @map("ip_address")
   userAgent String @map("user_agent")
@@ -10,6 +10,6 @@ model Click {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  @@index([linkId])
+  @@index([code])
   @@map("clicks")
 }

@@ -11,14 +11,14 @@ import { LinkService } from './link.service';
 export class LinkRedirectController {
   constructor(private readonly linkService: LinkService) {}
 
-  @Get(':shortCode')
+  @Get(':code')
   public async redirect(
-    @Param('shortCode') shortCode: string,
+    @Param('code') code: string,
     @ClientIp() ipAddress: string,
     @UserAgent() userAgent: string,
     @Res() res: Response,
   ): Promise<void> {
-    const originalUrl = await this.linkService.resolveRedirect(shortCode, ipAddress, userAgent);
+    const originalUrl = await this.linkService.resolveRedirect(code, ipAddress, userAgent);
   
     res.redirect(HttpStatus.FOUND, originalUrl);
   }

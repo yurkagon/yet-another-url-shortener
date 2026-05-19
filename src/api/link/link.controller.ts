@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, HttpCode, HttpStatus, Param, Post } from '@nestjs/common';
+import { Body, Controller, Delete, HttpCode, HttpStatus, Param, Post, Get } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 
 import { type User } from '@/api/user/user.service';
@@ -19,9 +19,14 @@ export class LinkController {
     return this.linkService.create(createLinkDto, user);
   }
 
-  @Delete(':shortCode')
+  @Get()
+  public getLinks(@AuthorizedUser("id") userId: string) {
+    return this.linkService.getLinksByUser(userId);
+  }
+
+  @Delete(':code')
   @HttpCode(HttpStatus.NO_CONTENT)
-  public delete(@Param('shortCode') shortCode: string, @AuthorizedUser() user: User): Promise<void> {
-    return this.linkService.delete(shortCode, user);
+  public delete(@Param('code') code: string, @AuthorizedUser('id') userId: string): Promise<void> {
+    return this.linkService.delete(code, userId);
   }
 }

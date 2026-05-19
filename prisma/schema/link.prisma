@@ -1,7 +1,6 @@
 model Link {
-  id          String @id @default(uuid())
+  code        String @id
   originalUrl String @map("original_url")
-  shortCode   String @unique @map("short_code")
 
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId String @map("user_id")
