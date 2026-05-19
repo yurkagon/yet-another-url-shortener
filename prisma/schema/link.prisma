@@ -1,5 +1,5 @@
 model Link {
-  code        String @id
+  code        String @unique @map("code")
   originalUrl String @map("original_url")
 
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)

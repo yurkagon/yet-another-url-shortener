@@ -8,4 +8,4 @@ import { UserModule } from '@/api/user/user.module';
 @Module({
   imports: [AuthModule, UserModule, LinkModule, StatisticsModule],
 })
-export class ApiModule { }
+export class ApiModule {}

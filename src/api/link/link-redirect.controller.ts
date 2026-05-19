@@ -19,7 +19,7 @@ export class LinkRedirectController {
     @Res() res: Response,
   ): Promise<void> {
     const originalUrl = await this.linkService.resolveRedirect(code, ipAddress, userAgent);
-  
+
     res.redirect(HttpStatus.FOUND, originalUrl);
   }
 }
