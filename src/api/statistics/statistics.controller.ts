@@ -11,8 +11,18 @@ import { StatisticsService } from './statistics.service';
 export class StatisticsController {
   constructor(private readonly statisticsService: StatisticsService) {}
 
-  @Get('link/:code')
-  public getBrowserStats(@Param('code') code: string) {
-    return this.statisticsService.getBrowserStats(code);
+  @Get('link/:code/browser')
+  public getBrowserBreakdown(@Param('code') code: string) {
+    return this.statisticsService.getBrowserBreakdown(code);
+  }
+
+  @Get('link/:code/country')
+  public getCountryBreakdown(@Param('code') code: string) {
+    return this.statisticsService.getCountryBreakdown(code);
+  }
+
+  @Get('link/:code/timeline')
+  public getDailyClicks(@Param('code') code: string) {
+    return this.statisticsService.getDailyClicks(code);
   }
 }
