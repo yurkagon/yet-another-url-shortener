@@ -1,6 +1,7 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { nanoid } from 'nanoid';
+import QRCode from 'qrcode';
 
 import { type User } from '@/api/user/user.service';
 import { PrismaService } from '@/infra/prisma/prisma.service';
@@ -81,5 +82,18 @@ export class LinkService {
       });
 
     return originalUrl;
+  }
+
+  public async generateQrCode(code: string): Promise<Buffer> {
+    await this.findByCode(code);
+
+    const appUrl = this.configService.getOrThrow<string>('APP_URL');
+    const shortUrl = `${appUrl}/l/${code}`;
+
+    return QRCode.toBuffer(shortUrl, {
+      type: 'png',
+      width: 300,
+      margin: 1,
+    });
   }
 }
