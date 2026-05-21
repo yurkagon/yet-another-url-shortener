@@ -76,7 +76,9 @@ describe('AuthService', () => {
     };
     jest.mocked(hash).mockResolvedValue('hashed-password');
     userService.create.mockResolvedValue(user);
-    jwtService.signAsync.mockResolvedValueOnce('access-token').mockResolvedValueOnce('refresh-token');
+    jwtService.signAsync
+      .mockResolvedValueOnce('access-token')
+      .mockResolvedValueOnce('refresh-token');
 
     await expect(service.register(response as unknown as Response, dto)).resolves.toEqual({
       user: {
@@ -120,7 +122,9 @@ describe('AuthService', () => {
     const dto: LoginDto = { email: user.email, password: 'password123' };
     userService.findByEmail.mockResolvedValue(user);
     jest.mocked(verify).mockResolvedValue(true);
-    jwtService.signAsync.mockResolvedValueOnce('access-token').mockResolvedValueOnce('refresh-token');
+    jwtService.signAsync
+      .mockResolvedValueOnce('access-token')
+      .mockResolvedValueOnce('refresh-token');
 
     const result = await service.login(response as unknown as Response, dto);
 
@@ -147,7 +151,10 @@ describe('AuthService', () => {
     jest.mocked(verify).mockResolvedValue(false);
 
     await expect(
-      service.login(response as unknown as Response, { email: user.email, password: 'bad-password' }),
+      service.login(response as unknown as Response, {
+        email: user.email,
+        password: 'bad-password',
+      }),
     ).rejects.toThrow(UnauthorizedException);
     expect(response.cookie).not.toHaveBeenCalled();
   });
@@ -155,7 +162,9 @@ describe('AuthService', () => {
   it('refreshes tokens for a valid refresh token', async () => {
     jwtService.verifyAsync.mockResolvedValue({ userId: user.id, tokenType: 'refresh' });
     userService.findById.mockResolvedValue(user);
-    jwtService.signAsync.mockResolvedValueOnce('new-access-token').mockResolvedValueOnce('new-refresh-token');
+    jwtService.signAsync
+      .mockResolvedValueOnce('new-access-token')
+      .mockResolvedValueOnce('new-refresh-token');
 
     await expect(
       service.refresh(response as unknown as Response, 'refresh-token'),

@@ -1,0 +1,20 @@
+{
+  "moduleFileExtensions": ["js", "json", "ts"],
+  "rootDir": "..",
+  "testEnvironment": "node",
+  "setupFiles": ["<rootDir>/test/jest-e2e.setup.js"],
+  "testRegex": ".e2e-spec.ts$",
+  "transform": {
+    "^.+\\.(t|j)s$": [
+      "ts-jest",
+      {
+        "tsconfig": "<rootDir>/tsconfig.e2e.json"
+      }
+    ]
+  },
+  "moduleNameMapper": {
+    "^nanoid$": "<rootDir>/test/mocks/nanoid.js",
+    "^@generated/(.*)$": "<rootDir>/generated/$1",
+    "^@/(.*)$": "<rootDir>/src/$1"
+  }
+}

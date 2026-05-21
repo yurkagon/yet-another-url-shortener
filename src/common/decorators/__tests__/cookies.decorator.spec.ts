@@ -18,11 +18,10 @@ describe('Cookies', () => {
 
     Cookies('refreshToken')(TestController.prototype, 'handler', 0);
 
-    const metadata = Reflect.getMetadata(
-      ROUTE_ARGS_METADATA,
-      TestController,
-      'handler',
-    ) as Record<string, { factory: (data: unknown, ctx: ExecutionContext) => unknown }>;
+    const metadata = Reflect.getMetadata(ROUTE_ARGS_METADATA, TestController, 'handler') as Record<
+      string,
+      { factory: (data: unknown, ctx: ExecutionContext) => unknown }
+    >;
 
     return Object.values(metadata)[0].factory;
   };

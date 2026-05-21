@@ -21,19 +21,47 @@ jest.mock('qrcode', () => ({
   },
 }));
 
+type LinkCreateArgs = {
+  data: {
+    originalUrl: string;
+    code: string;
+    user: { connect: { id: string } };
+  };
+};
+
+type LinkFindUniqueArgs = {
+  where: { code: string };
+};
+
+type ClickCreateArgs = {
+  data: {
+    link: { connect: { code: string } };
+    ipAddress: string;
+    userAgent: string;
+  };
+};
+
+type RetrieveArgs<T = unknown> = {
+  key: string;
+  ttl?: number;
+  strategy: () => Promise<T> | T;
+};
+
 describe('LinkService', () => {
   let service: LinkService;
   let prismaService: {
     link: {
-      create: jest.Mock;
-      findUnique: jest.Mock;
+      create: jest.Mock<Promise<unknown>, [LinkCreateArgs]>;
+      findUnique: jest.Mock<Promise<unknown>, [LinkFindUniqueArgs]>;
     };
     click: {
-      create: jest.Mock;
+      create: jest.Mock<Promise<unknown>, [ClickCreateArgs]>;
     };
   };
   let configService: { getOrThrow: jest.Mock };
-  let redisService: jest.Mocked<Pick<RedisService, 'retrieve'>>;
+  let redisService: {
+    retrieve: jest.Mock<Promise<unknown>, [RetrieveArgs]>;
+  };
 
   const dto: CreateLinkDto = { originalUrl: 'https://example.com/article' };
   const user: User = {
@@ -49,18 +77,18 @@ describe('LinkService', () => {
 
     prismaService = {
       link: {
-        create: jest.fn(),
-        findUnique: jest.fn(),
+        create: jest.fn<Promise<unknown>, [LinkCreateArgs]>(),
+        findUnique: jest.fn<Promise<unknown>, [LinkFindUniqueArgs]>(),
       },
       click: {
-        create: jest.fn(),
+        create: jest.fn<Promise<unknown>, [ClickCreateArgs]>(),
       },
     };
     configService = {
       getOrThrow: jest.fn().mockReturnValue('https://short.test'),
     };
     redisService = {
-      retrieve: jest.fn(),
+      retrieve: jest.fn<Promise<unknown>, [RetrieveArgs]>(),
     };
 
     service = new LinkService(
@@ -116,7 +144,7 @@ describe('LinkService', () => {
   });
 
   it('resolves redirects through cache and records a click asynchronously', async () => {
-    redisService.retrieve.mockImplementation(async ({ strategy }) => strategy());
+    redisService.retrieve.mockImplementation(({ strategy }) => Promise.resolve(strategy()));
     prismaService.link.findUnique.mockResolvedValue({
       code: 'abc12345',
       originalUrl: dto.originalUrl,
@@ -127,11 +155,10 @@ describe('LinkService', () => {
       dto.originalUrl,
     );
 
-    expect(redisService.retrieve).toHaveBeenCalledWith({
-      key: 'link:short-code:abc12345',
-      ttl: 300,
-      strategy: expect.any(Function),
-    });
+    const retrieveArgs = redisService.retrieve.mock.calls[0][0];
+    expect(retrieveArgs.key).toBe('link:short-code:abc12345');
+    expect(retrieveArgs.ttl).toBe(300);
+    expect(retrieveArgs.strategy).toEqual(expect.any(Function));
     expect(prismaService.click.create).toHaveBeenCalledWith({
       data: {
         link: {
@@ -149,11 +176,8 @@ describe('LinkService', () => {
 
     await service.resolveRedirect('abc12345', '', 'Mozilla/5.0');
 
-    expect(prismaService.click.create).toHaveBeenCalledWith(
-      expect.objectContaining({
-        data: expect.objectContaining({ ipAddress: 'unknown' }),
-      }),
-    );
+    const clickCreateArgs = prismaService.click.create.mock.calls[0][0];
+    expect(clickCreateArgs.data.ipAddress).toBe('unknown');
   });
 
   it('returns the redirect URL even when click recording fails', async () => {
@@ -167,7 +191,10 @@ describe('LinkService', () => {
 
   it('generates a QR code for an existing short link', async () => {
     const buffer = Buffer.from('qr');
-    prismaService.link.findUnique.mockResolvedValue({ code: 'abc12345', originalUrl: dto.originalUrl });
+    prismaService.link.findUnique.mockResolvedValue({
+      code: 'abc12345',
+      originalUrl: dto.originalUrl,
+    });
     (QRCode.toBuffer as jest.Mock).mockResolvedValue(buffer);
 
     await expect(service.generateQrCode('abc12345')).resolves.toBe(buffer);

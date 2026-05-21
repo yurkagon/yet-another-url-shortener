@@ -34,7 +34,11 @@ describe('LinkRedirectController', () => {
       response as unknown as Response,
     );
 
-    expect(linkService.resolveRedirect).toHaveBeenCalledWith('abc12345', '127.0.0.1', 'Mozilla/5.0');
+    expect(linkService.resolveRedirect).toHaveBeenCalledWith(
+      'abc12345',
+      '127.0.0.1',
+      'Mozilla/5.0',
+    );
     expect(response.redirect).toHaveBeenCalledWith(HttpStatus.FOUND, 'https://example.com/article');
   });
 });
