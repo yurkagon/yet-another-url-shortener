@@ -19,7 +19,7 @@
     "build": "nest build && tsc-alias -p tsconfig.build.json",
     "prod": "docker compose -f docker-compose.prod.yml up -d --build",
     "prod:down": "docker compose -f docker-compose.prod.yml down",
-    "prod:local": "node dist/main",
+    "prod:local": "node dist/src/main",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",

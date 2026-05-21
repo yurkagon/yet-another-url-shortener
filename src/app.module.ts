@@ -8,6 +8,7 @@ import { InfraModule } from '@/infra/infra.module';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+      ignoreEnvFile: true,
     }),
     InfraModule,
     ApiModule,

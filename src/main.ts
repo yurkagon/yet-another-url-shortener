@@ -1,4 +1,4 @@
-import '@dotenvx/dotenvx/config';
+import '@/config/load-env';
 
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe, VersioningType } from '@nestjs/common';
