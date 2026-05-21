@@ -26,16 +26,19 @@ RUN npm run build
 FROM node:24-slim AS runner
 WORKDIR /app
 
-RUN apt-get update && apt-get upgrade -y --no-install-recommends && rm -rf /var/lib/apt/lists/*
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends openssl \
+  && apt-get upgrade -y --no-install-recommends \
+  && rm -rf /var/lib/apt/lists/*
 
 ENV NODE_ENV=production
 
 RUN groupadd -r app && useradd -r -g app app
 
-COPY --from=deps-prod /app/node_modules ./node_modules
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/generated ./generated
-COPY --from=builder /app/package.json ./package.json
+COPY --chown=app:app --from=deps-prod /app/node_modules ./node_modules
+COPY --chown=app:app --from=builder /app/dist ./dist
+COPY --chown=app:app --from=builder /app/generated ./generated
+COPY --chown=app:app --from=builder /app/package.json ./package.json
 
 USER app
 
