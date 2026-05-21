@@ -98,14 +98,12 @@ export class AuthService {
 
   private async generateTokens(userId: string) {
     const [accessToken, refreshToken] = await Promise.all([
-      this.jwtService.signAsync(
-        { userId, tokenType: 'access' } satisfies JWTAccessTokenPayload,
-        { expiresIn: this.JWT_EXPIRATION_TIME },
-      ),
-      this.jwtService.signAsync(
-        { userId, tokenType: 'refresh' } satisfies JWTAccessTokenPayload,
-        { expiresIn: this.JWT_REFRESH_EXPIRATION_TIME },
-      ),
+      this.jwtService.signAsync({ userId, tokenType: 'access' } satisfies JWTAccessTokenPayload, {
+        expiresIn: this.JWT_EXPIRATION_TIME,
+      }),
+      this.jwtService.signAsync({ userId, tokenType: 'refresh' } satisfies JWTAccessTokenPayload, {
+        expiresIn: this.JWT_REFRESH_EXPIRATION_TIME,
+      }),
     ]);
 
     return { accessToken, refreshToken };

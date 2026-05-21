@@ -1,0 +1,10 @@
+.git
+.env
+.env.*
+!.env.sample
+dist
+node_modules
+coverage
+test
+*.spec.ts
+*.e2e-spec.ts

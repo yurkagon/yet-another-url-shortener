@@ -10,4 +10,3 @@ export const OPENAPI_DOCS_PATH = '/docs';
 export const OPENAPI_SERVER_URL = '/';
 export const ACCESS_TOKEN_SECURITY_NAME = 'accessTokenCookie';
 export const REFRESH_TOKEN_SECURITY_NAME = 'refreshTokenCookie';
-

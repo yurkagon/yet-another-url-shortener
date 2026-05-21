@@ -26,8 +26,7 @@ export const useSwagger = (app: INestApplication) => {
       {
         type: 'apiKey',
         in: 'cookie',
-        description:
-          'Access JWT cookie. Issued on register/login and used by protected routes.',
+        description: 'Access JWT cookie. Issued on register/login and used by protected routes.',
       },
       ACCESS_TOKEN_SECURITY_NAME,
     )
@@ -36,8 +35,7 @@ export const useSwagger = (app: INestApplication) => {
       {
         type: 'apiKey',
         in: 'cookie',
-        description:
-          'Refresh JWT cookie. Issued on register/login and required for token refresh.',
+        description: 'Refresh JWT cookie. Issued on register/login and required for token refresh.',
       },
       REFRESH_TOKEN_SECURITY_NAME,
     )
