@@ -40,6 +40,13 @@ export class LinkService {
     return shortUrl;
   }
 
+  public async findAllByUser(userId: string) {
+    return this.prismaService.link.findMany({
+      where: { userId },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
   public async findByCode(code: string) {
     const link = await this.prismaService.link.findUnique({
       where: {

@@ -1,4 +1,5 @@
 import { Body, Controller, Get, Param, Post, StreamableFile } from '@nestjs/common';
+
 import { ApiOkResponse, ApiOperation, ApiProduces, ApiTags } from '@nestjs/swagger';
 
 import { type User } from '@/api/user/user.service';
@@ -13,6 +14,11 @@ import { LinkService } from './link.service';
 @Controller('link')
 export class LinkController {
   constructor(private readonly linkService: LinkService) {}
+
+  @Get()
+  public findAll(@AuthorizedUser() user: User) {
+    return this.linkService.findAllByUser(user.id);
+  }
 
   @Post()
   public create(@Body() createLinkDto: CreateLinkDto, @AuthorizedUser() user: User) {
