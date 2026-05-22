@@ -62,6 +62,10 @@ export class RedisService implements OnModuleDestroy {
     return data;
   }
 
+  public async del(key: string) {
+    return this.redisClient.del(key);
+  }
+
   public get client() {
     return this.redisClient;
   }

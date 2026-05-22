@@ -57,7 +57,7 @@ export const createE2eApp = async (): Promise<E2eTestApp> => {
   await app.init();
 
   return {
-    app,
+    app: app as INestApplication<App>,
     server: app.getHttpServer() as App,
     store,
     prisma,

@@ -22,8 +22,10 @@ describe('Statistics e2e', () => {
   it('returns statistics for authenticated users', async () => {
     const { cookies } = await registerUser(testApp.server);
     const link: LinkModel = {
+      id: 'link-1',
       code: 'mock-code',
       originalUrl: 'https://example.com/article',
+      isArchived: false,
       userId: 'user-1',
       createdAt: new Date('2026-01-01T00:00:00.000Z'),
       updatedAt: new Date('2026-01-01T00:00:00.000Z'),
@@ -31,7 +33,7 @@ describe('Statistics e2e', () => {
     const clicks: ClickModel[] = [
       {
         id: 'click-1',
-        linkCode: 'mock-code',
+        linkId: 'link-1',
         ipAddress: '8.8.8.8',
         userAgent:
           'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
@@ -40,7 +42,7 @@ describe('Statistics e2e', () => {
       },
       {
         id: 'click-2',
-        linkCode: 'mock-code',
+        linkId: 'link-1',
         ipAddress: '1.1.1.1',
         userAgent:
           'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
@@ -49,7 +51,7 @@ describe('Statistics e2e', () => {
       },
       {
         id: 'click-3',
-        linkCode: 'mock-code',
+        linkId: 'link-1',
         ipAddress: '91.198.174.192',
         userAgent:
           'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15',

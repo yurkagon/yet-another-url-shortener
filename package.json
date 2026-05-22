@@ -37,6 +37,7 @@
     "db:generate": "prisma generate",
     "db:view": "prisma studio",
     "db:push": "prisma db push",
+    "db:seed": "dotenvx run -- ts-node -r tsconfig-paths/register prisma/seed.ts",
     "test": "jest",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "test:all": "npm test -- --runInBand && npm run test:e2e -- --runInBand",

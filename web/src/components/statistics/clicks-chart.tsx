@@ -26,28 +26,30 @@ export function ClicksChart({ data }: ClicksChartProps) {
       <AreaChart data={data} margin={{ top: 4, right: 16, bottom: 0, left: 0 }}>
         <defs>
           <linearGradient id="clicks-grad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3} />
-            <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0} />
+            <stop offset="5%" stopColor="#E5563C" stopOpacity={0.25} />
+            <stop offset="95%" stopColor="#E5563C" stopOpacity={0} />
           </linearGradient>
         </defs>
-        <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-        <XAxis dataKey="date" tick={{ fontSize: 12 }} className="text-muted-foreground" />
-        <YAxis allowDecimals={false} tick={{ fontSize: 12 }} className="text-muted-foreground" />
+        <CartesianGrid strokeDasharray="3 3" stroke="#d4d0c8" />
+        <XAxis dataKey="date" tick={{ fontSize: 11, fill: '#9e9b94' }} axisLine={false} tickLine={false} />
+        <YAxis allowDecimals={false} tick={{ fontSize: 11, fill: '#9e9b94' }} axisLine={false} tickLine={false} />
         <Tooltip
           contentStyle={{
-            background: 'hsl(var(--popover))',
-            border: '1px solid hsl(var(--border))',
-            borderRadius: 8,
-            fontSize: 13,
+            background: '#fbfaf6',
+            border: '1.5px solid #1d1d1b',
+            borderRadius: 6,
+            fontSize: 12,
           }}
         />
         <Area
           type="monotone"
           dataKey="value"
           name="Clicks"
-          stroke="hsl(var(--primary))"
+          stroke="#E5563C"
           fill="url(#clicks-grad)"
           strokeWidth={2}
+          dot={false}
+          activeDot={{ r: 4, fill: '#E5563C', stroke: '#fbfaf6', strokeWidth: 2 }}
         />
       </AreaChart>
     </ResponsiveContainer>

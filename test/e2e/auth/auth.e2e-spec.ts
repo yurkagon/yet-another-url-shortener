@@ -23,13 +23,16 @@ describe('Auth e2e', () => {
   it('registers, authenticates, refreshes, and logs out a user', async () => {
     const { response, cookies } = await registerUser(testApp.server);
 
+    const registerBody = response.body as {
+      user: { id: string; name: string; email: string; password?: string };
+    };
     expect(response.status).toBe(201);
-    expect(response.body.user).toMatchObject({
+    expect(registerBody.user).toMatchObject({
       id: 'user-1',
       name: 'Ada',
       email: 'ada@example.com',
     });
-    expect(response.body.user).not.toHaveProperty('password');
+    expect(registerBody.user).not.toHaveProperty('password');
     expect(cookies.some((cookie) => cookie.startsWith(`${ACCESS_TOKEN_COOKIE}=`))).toBe(true);
     expect(cookies.some((cookie) => cookie.startsWith(`${REFRESH_TOKEN_COOKIE}=`))).toBe(true);
 

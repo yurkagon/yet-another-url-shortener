@@ -3,11 +3,14 @@
 import { Cell, Pie, PieChart, PieLabelRenderProps, ResponsiveContainer, Tooltip } from 'recharts';
 
 const COLORS = [
-  'hsl(var(--chart-1))',
-  'hsl(var(--chart-2))',
-  'hsl(var(--chart-3))',
-  'hsl(var(--chart-4))',
-  'hsl(var(--chart-5))',
+  '#E5563C', // coral
+  '#3B7DD8', // blue
+  '#2EAA6E', // green
+  '#E8A838', // amber
+  '#8B62D9', // violet
+  '#D95F8A', // rose
+  '#38B2C4', // teal
+  '#C47B3A', // brown
 ];
 
 interface BrowserChartProps {
@@ -44,10 +47,10 @@ export function BrowserChart({ data }: BrowserChartProps) {
         </Pie>
         <Tooltip
           contentStyle={{
-            background: 'hsl(var(--popover))',
-            border: '1px solid hsl(var(--border))',
-            borderRadius: 8,
-            fontSize: 13,
+            background: '#fbfaf6',
+            border: '1.5px solid #1d1d1b',
+            borderRadius: 6,
+            fontSize: 12,
           }}
         />
       </PieChart>

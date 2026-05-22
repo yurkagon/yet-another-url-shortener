@@ -67,18 +67,60 @@ export const authApi = {
 // ─── Links ───────────────────────────────────────────────────────────────────
 
 export interface Link {
+  id: string;
   code: string;
   originalUrl: string;
+  isArchived: boolean;
   userId: string;
   createdAt: string;
   updatedAt: string;
+  _count: { clicks: number };
+}
+
+export interface LinkListParams {
+  search?: string;
+  page?: number;
+  limit?: number;
+  sortOrder?: 'asc' | 'desc';
+  status?: 'active' | 'archived' | 'all';
+}
+
+export interface PaginatedLinks {
+  data: Link[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
+function buildQuery(params: Record<string, string | number | boolean | undefined>): string {
+  const qs = Object.entries(params)
+    .filter(([, v]) => v !== undefined && v !== '')
+    .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(String(v))}`)
+    .join('&');
+  return qs ? `?${qs}` : '';
 }
 
 export const linkApi = {
-  list: () => api<Link[]>('/link'),
+  list: (params: LinkListParams = {}) =>
+    api<PaginatedLinks>(`/link${buildQuery(params as Record<string, string | number | boolean | undefined>)}`),
 
   create: (originalUrl: string) =>
     api<string>('/link', { method: 'POST', body: JSON.stringify({ originalUrl }) }),
+
+  exportCsv: async (): Promise<Blob> => {
+    const res = await fetch(`${BASE_URL}/link/export/csv`, { credentials: 'include' });
+    if (!res.ok) throw new Error('Failed to export CSV');
+    return res.blob();
+  },
+
+  getByCode: (code: string) => api<Link>(`/link/${code}`),
+
+  update: (id: string, data: { originalUrl?: string; isArchived?: boolean }) =>
+    api<Link>(`/link/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
+
+  delete: (id: string) =>
+    api(`/link/${id}`, { method: 'DELETE' }),
 
   qrUrl: (code: string) => `${BASE_URL}/link/${code}/qr`,
 };

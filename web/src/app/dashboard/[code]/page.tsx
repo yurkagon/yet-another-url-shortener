@@ -1,15 +1,20 @@
 'use client';
 
 import Link from 'next/link';
-import { use } from 'react';
+import { useRouter } from 'next/navigation';
+import { use, useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 
 import { BrowserChart } from '@/components/statistics/browser-chart';
 import { ClicksChart } from '@/components/statistics/clicks-chart';
 import { CountryChart } from '@/components/statistics/country-chart';
+import { QrCodeModal } from '@/components/link/qr-code-modal';
 import { QrPlaceholder } from '@/components/wf/qr-placeholder';
 import { formatShortLinkLabel } from '@/lib/brand';
 import { useBrowserStats, useCountryStats, useTimelineStats } from '@/hooks/use-statistics';
+import { useUpdateLink, useDeleteLink } from '@/hooks/use-links';
+import { linkApi, ApiError } from '@/lib/api';
+import { useQuery } from '@tanstack/react-query';
 
 interface Props {
   params: Promise<{ code: string }>;
@@ -21,6 +26,13 @@ const APP_URL =
 export default function AnalyticsPage({ params }: Props) {
   const { code } = use(params);
   const shortUrl = `${APP_URL}/l/${code}`;
+  const router = useRouter();
+
+  const { data: linkData } = useQuery({
+    queryKey: ['link', code],
+    queryFn: () => linkApi.getByCode(code),
+  });
+  const linkId = linkData?.id ?? '';
 
   const { data: timeline = [], isLoading: loadingTimeline } = useTimelineStats(code);
   const { data: browsers = {}, isLoading: loadingBrowser } = useBrowserStats(code);
@@ -29,19 +41,99 @@ export default function AnalyticsPage({ params }: Props) {
   const totalClicks = timeline.reduce((sum, d) => sum + d.value, 0);
   const browserCount = Object.keys(browsers).length;
   const countryCount = Object.keys(countries).length;
-  const topCountry =
-    Object.entries(countries).sort((a, b) => b[1] - a[1])[0]?.[0] ?? '—';
-  const topBrowser =
-    Object.entries(browsers).sort((a, b) => b[1] - a[1])[0]?.[0] ?? '—';
+  const topCountry = Object.entries(countries).sort((a, b) => b[1] - a[1])[0]?.[0] ?? '—';
+  const topBrowser = Object.entries(browsers).sort((a, b) => b[1] - a[1])[0]?.[0] ?? '—';
+
+  // ── modals / dropdowns ─────────────────────────────────────────────────────
+  const [showQr, setShowQr] = useState(false);
+  const [showEdit, setShowEdit] = useState(false);
+  const [editUrl, setEditUrl] = useState('');
+  const [editSlug, setEditSlug] = useState('');
+  const [slugError, setSlugError] = useState('');
+  const [showMenu, setShowMenu] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setShowMenu(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
+
+  const updateLink = useUpdateLink(linkId);
+  const deleteLink = useDeleteLink(linkId);
 
   const copy = () => {
     void navigator.clipboard.writeText(shortUrl);
     toast.success('Copied!');
   };
 
+  const openEdit = () => {
+    setEditUrl(linkData?.originalUrl ?? '');
+    setEditSlug(code);
+    setSlugError('');
+    setShowEdit(true);
+  };
+
+  const handleEditSave = () => {
+    if (!editUrl.trim()) return;
+    setSlugError('');
+
+    const patch: { originalUrl?: string; code?: string } = {};
+    if (editUrl.trim() !== linkData?.originalUrl) patch.originalUrl = editUrl.trim();
+    if (editSlug.trim() !== code) patch.code = editSlug.trim();
+
+    if (Object.keys(patch).length === 0) { setShowEdit(false); return; }
+
+    updateLink.mutate(patch, {
+      onSuccess: () => {
+        toast.success('Link updated');
+        setShowEdit(false);
+        // If slug changed — navigate to new URL
+        if (patch.code) router.replace(`/dashboard/${patch.code}`);
+      },
+      onError: (err: unknown) => {
+        if (err instanceof ApiError && err.status === 409) {
+          setSlugError('This slug is already taken');
+        } else {
+          toast.error('Failed to update link');
+        }
+      },
+    });
+  };
+
+  const handleArchive = () => {
+    setShowMenu(false);
+    updateLink.mutate(
+      { isArchived: true },
+      {
+        onSuccess: () => {
+          toast.success('Link archived');
+          router.push('/dashboard');
+        },
+        onError: () => toast.error('Failed to archive link'),
+      },
+    );
+  };
+
+  const handleDelete = () => {
+    setShowMenu(false);
+    if (!confirm(`Delete link "${code}"? This cannot be undone.`)) return;
+    deleteLink.mutate(undefined, {
+      onSuccess: () => {
+        toast.success('Link deleted');
+        router.push('/dashboard');
+      },
+      onError: () => toast.error('Failed to delete link'),
+    });
+  };
+
   const stats: { label: string; value: string; delta?: string }[] = [
-    { label: 'Clicks', value: totalClicks.toLocaleString(), delta: '+12%' },
-    { label: 'Unique', value: '—', delta: '' },
+    { label: 'Clicks', value: totalClicks.toLocaleString() },
     { label: 'Browsers', value: browserCount.toString() },
     { label: 'Top country', value: topCountry, delta: `${countryCount} total` },
     { label: 'Top browser', value: topBrowser },
@@ -85,15 +177,49 @@ export default function AnalyticsPage({ params }: Props) {
             >
               ⎘ Copy
             </button>
-            <button type="button" className="wf-btn-outline px-3 py-1.5 text-[12px]">
+            <button
+              type="button"
+              onClick={() => setShowQr(true)}
+              className="wf-btn-outline px-3 py-1.5 text-[12px]"
+            >
               ⬇ QR
             </button>
-            <button type="button" className="wf-btn-outline px-3 py-1.5 text-[12px]">
+            <button
+              type="button"
+              onClick={openEdit}
+              className="wf-btn-outline px-3 py-1.5 text-[12px]"
+            >
               ✎ Edit
             </button>
-            <button type="button" className="wf-btn-outline px-3 py-1.5 text-[12px]">
-              ⋯
-            </button>
+
+            {/* "..." dropdown */}
+            <div className="relative" ref={menuRef}>
+              <button
+                type="button"
+                onClick={() => setShowMenu((v) => !v)}
+                className="wf-btn-outline px-3 py-1.5 text-[12px]"
+              >
+                ⋯
+              </button>
+              {showMenu && (
+                <div className="wf-box absolute right-0 top-full z-50 mt-1 flex min-w-[140px] flex-col overflow-hidden p-1">
+                  <button
+                    type="button"
+                    onClick={handleArchive}
+                    className="rounded px-3 py-2 text-left text-[12px] hover:bg-[color:var(--wf-tint)]"
+                  >
+                    📦 Archive
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleDelete}
+                    className="rounded px-3 py-2 text-left text-[12px] text-red-600 hover:bg-[color:var(--wf-tint)]"
+                  >
+                    🗑 Delete
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -117,6 +243,70 @@ export default function AnalyticsPage({ params }: Props) {
         ))}
       </div>
 
+      {/* QR modal */}
+      <QrCodeModal code={showQr ? code : null} onClose={() => setShowQr(false)} />
+
+      {/* Edit modal */}
+      {showEdit && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
+          <div className="wf-box w-full max-w-md p-6">
+            <h2 className="font-[family-name:var(--font-hand)] text-[18px] font-bold">
+              Edit link
+            </h2>
+
+            {/* Slug */}
+            <label className="mt-4 block">
+              <span className="text-[10px] uppercase tracking-wider text-[color:var(--wf-muted)]">
+                Slug
+              </span>
+              <input
+                className={`wf-input mt-1 w-full font-[family-name:var(--font-mono)] text-[13px] ${slugError ? 'border-red-500' : ''}`}
+                value={editSlug}
+                onChange={(e) => { setEditSlug(e.target.value); setSlugError(''); }}
+                placeholder="my-slug"
+                onKeyDown={(e) => e.key === 'Enter' && handleEditSave()}
+              />
+              {slugError && (
+                <span className="mt-1 block text-[11px] text-red-600">{slugError}</span>
+              )}
+            </label>
+
+            {/* Destination URL */}
+            <label className="mt-3 block">
+              <span className="text-[10px] uppercase tracking-wider text-[color:var(--wf-muted)]">
+                Destination URL
+              </span>
+              <input
+                className="wf-input mt-1 w-full text-[13px]"
+                value={editUrl}
+                onChange={(e) => setEditUrl(e.target.value)}
+                placeholder="https://example.com/new-url"
+                onKeyDown={(e) => e.key === 'Enter' && handleEditSave()}
+                autoFocus
+              />
+            </label>
+
+            <div className="mt-5 flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setShowEdit(false)}
+                className="wf-btn-ghost px-4 py-1.5 text-[12px]"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleEditSave}
+                disabled={updateLink.isPending}
+                className="wf-btn-solid px-4 py-1.5 text-[12px] disabled:opacity-50"
+              >
+                {updateLink.isPending ? 'Saving…' : 'Save'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Main grid */}
       <div className="flex flex-1 gap-4">
         {/* Timeline chart */}
@@ -131,29 +321,17 @@ export default function AnalyticsPage({ params }: Props) {
               </span>
             </div>
             <div className="flex gap-1">
-              <button type="button" className="wf-btn-ghost px-2.5 py-1 text-[11px]">
-                24h
-              </button>
-              <button type="button" className="wf-btn-outline px-2.5 py-1 text-[11px]">
-                7d
-              </button>
-              <button type="button" className="wf-btn-ghost px-2.5 py-1 text-[11px]">
-                30d
-              </button>
-              <button type="button" className="wf-btn-ghost px-2.5 py-1 text-[11px]">
-                All
-              </button>
+              <button type="button" className="wf-btn-ghost px-2.5 py-1 text-[11px]">24h</button>
+              <button type="button" className="wf-btn-outline px-2.5 py-1 text-[11px]">7d</button>
+              <button type="button" className="wf-btn-ghost px-2.5 py-1 text-[11px]">30d</button>
+              <button type="button" className="wf-btn-ghost px-2.5 py-1 text-[11px]">All</button>
             </div>
           </div>
           {loadingTimeline ? <ChartSkeleton /> : <ClicksChart data={timeline} />}
           <div className="flex gap-5 text-[11px]">
             <span className="flex items-center gap-1.5">
-              <span className="inline-block h-2 w-2 rounded-sm bg-foreground" />
+              <span className="inline-block h-2 w-2 rounded-sm bg-[#E5563C]" />
               Total clicks
-            </span>
-            <span className="flex items-center gap-1.5">
-              <span className="inline-block h-2 w-2 rounded-sm bg-[color:var(--wf-accent)]" />
-              Unique visitors
             </span>
           </div>
         </div>
@@ -165,11 +343,7 @@ export default function AnalyticsPage({ params }: Props) {
               <span className="font-[family-name:var(--font-hand)] text-[14px] font-bold">
                 Top countries
               </span>
-              {loadingCountry ? (
-                <ChartSkeleton small />
-              ) : (
-                <CountryChart data={countries} />
-              )}
+              {loadingCountry ? <ChartSkeleton small /> : <CountryChart data={countries} />}
             </div>
           </div>
 
@@ -178,11 +352,7 @@ export default function AnalyticsPage({ params }: Props) {
               <span className="font-[family-name:var(--font-hand)] text-[14px] font-bold">
                 Browsers
               </span>
-              {loadingBrowser ? (
-                <ChartSkeleton small />
-              ) : (
-                <BrowserChart data={browsers} />
-              )}
+              {loadingBrowser ? <ChartSkeleton small /> : <BrowserChart data={browsers} />}
             </div>
           </div>
         </div>

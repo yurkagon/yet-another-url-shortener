@@ -3,6 +3,7 @@ import { StreamableFile } from '@nestjs/common';
 import { User } from '@/api/user/user.service';
 
 import { CreateLinkDto } from './dto/create-link.dto';
+import { GetLinksQueryDto } from './dto/get-links-query.dto';
 import { LinkController } from './link.controller';
 import { LinkService } from './link.service';
 
@@ -12,12 +13,24 @@ jest.mock('nanoid', () => ({
 
 describe('LinkController', () => {
   let controller: LinkController;
-  let linkService: jest.Mocked<Pick<LinkService, 'create' | 'generateQrCode'>>;
+  let linkService: jest.Mocked<
+    Pick<LinkService, 'create' | 'generateQrCode' | 'findAllByUser' | 'exportCsv'>
+  >;
+
+  const user: User = {
+    id: 'user-1',
+    email: 'ada@example.com',
+    name: 'Ada',
+    createdAt: new Date('2026-01-01T00:00:00.000Z'),
+    updatedAt: new Date('2026-01-02T00:00:00.000Z'),
+  };
 
   beforeEach(() => {
     linkService = {
       create: jest.fn(),
       generateQrCode: jest.fn(),
+      findAllByUser: jest.fn(),
+      exportCsv: jest.fn(),
     };
 
     controller = new LinkController(linkService as unknown as LinkService);
@@ -25,17 +38,19 @@ describe('LinkController', () => {
 
   it('delegates link creation to LinkService', async () => {
     const dto: CreateLinkDto = { originalUrl: 'https://example.com' };
-    const user: User = {
-      id: 'user-1',
-      email: 'ada@example.com',
-      name: 'Ada',
-      createdAt: new Date('2026-01-01T00:00:00.000Z'),
-      updatedAt: new Date('2026-01-02T00:00:00.000Z'),
-    };
     linkService.create.mockResolvedValue('https://short.test/l/abc12345');
 
     await expect(controller.create(dto, user)).resolves.toBe('https://short.test/l/abc12345');
     expect(linkService.create).toHaveBeenCalledWith(dto, user);
+  });
+
+  it('delegates findAll to LinkService with query params', async () => {
+    const query: GetLinksQueryDto = { page: 1, limit: 10, search: 'github', status: 'active' };
+    const mockResult = { data: [], total: 0, page: 1, limit: 10, totalPages: 0 };
+    linkService.findAllByUser.mockResolvedValue(mockResult);
+
+    await expect(controller.findAll(user, query)).resolves.toBe(mockResult);
+    expect(linkService.findAllByUser).toHaveBeenCalledWith(user.id, query);
   });
 
   it('wraps generated QR code bytes in a StreamableFile', async () => {
@@ -51,5 +66,25 @@ describe('LinkController', () => {
       length: buffer.length,
     });
     expect(linkService.generateQrCode).toHaveBeenCalledWith('abc12345');
+  });
+
+  it('sends CSV with correct headers', async () => {
+    const csvContent = 'id,code,original_url,is_archived,created_at\nlink-1,abc12345,...';
+    linkService.exportCsv.mockResolvedValue(csvContent);
+
+    const res = {
+      setHeader: jest.fn(),
+      send: jest.fn(),
+    };
+
+    await controller.exportCsv(user, res as never);
+
+    expect(linkService.exportCsv).toHaveBeenCalledWith(user.id);
+    expect(res.setHeader).toHaveBeenCalledWith('Content-Type', 'text/csv');
+    expect(res.setHeader).toHaveBeenCalledWith(
+      'Content-Disposition',
+      'attachment; filename="links.csv"',
+    );
+    expect(res.send).toHaveBeenCalledWith(csvContent);
   });
 });

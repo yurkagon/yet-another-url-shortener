@@ -3,11 +3,14 @@
 import { Bar, BarChart, CartesianGrid, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 
 const COLORS = [
-  'hsl(var(--chart-1))',
-  'hsl(var(--chart-2))',
-  'hsl(var(--chart-3))',
-  'hsl(var(--chart-4))',
-  'hsl(var(--chart-5))',
+  '#E5563C', // coral
+  '#3B7DD8', // blue
+  '#2EAA6E', // green
+  '#E8A838', // amber
+  '#8B62D9', // violet
+  '#D95F8A', // rose
+  '#38B2C4', // teal
+  '#C47B3A', // brown
 ];
 
 interface CountryChartProps {
@@ -30,15 +33,15 @@ export function CountryChart({ data }: CountryChartProps) {
   return (
     <ResponsiveContainer width="100%" height={220}>
       <BarChart data={chartData} margin={{ top: 4, right: 16, bottom: 0, left: 0 }}>
-        <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-        <XAxis dataKey="name" tick={{ fontSize: 12 }} />
-        <YAxis allowDecimals={false} tick={{ fontSize: 12 }} />
+        <CartesianGrid strokeDasharray="3 3" stroke="#d4d0c8" vertical={false} />
+        <XAxis dataKey="name" tick={{ fontSize: 11, fill: '#9e9b94' }} axisLine={false} tickLine={false} />
+        <YAxis allowDecimals={false} tick={{ fontSize: 11, fill: '#9e9b94' }} axisLine={false} tickLine={false} />
         <Tooltip
           contentStyle={{
-            background: 'hsl(var(--popover))',
-            border: '1px solid hsl(var(--border))',
-            borderRadius: 8,
-            fontSize: 13,
+            background: '#fbfaf6',
+            border: '1.5px solid #1d1d1b',
+            borderRadius: 6,
+            fontSize: 12,
           }}
         />
         <Bar dataKey="value" name="Clicks" radius={[4, 4, 0, 0]}>

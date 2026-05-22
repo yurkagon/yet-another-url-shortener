@@ -1,6 +1,8 @@
 model Link {
-  code        String @unique @map("code")
-  originalUrl String @map("original_url")
+  id          String   @id @default(uuid()) @map("id")
+  code        String   @unique @map("code")
+  originalUrl String   @map("original_url")
+  isArchived  Boolean  @default(false) @map("is_archived")
 
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId String @map("user_id")

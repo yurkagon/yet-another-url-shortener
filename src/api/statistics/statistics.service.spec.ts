@@ -50,7 +50,7 @@ describe('StatisticsService', () => {
       Chrome: 2,
       Safari: 1,
     });
-    expect(prismaService.click.findMany).toHaveBeenCalledWith({ where: { linkCode: 'abc12345' } });
+    expect(prismaService.click.findMany).toHaveBeenCalledWith({ where: { link: { code: 'abc12345' } } });
   });
 
   it('uses unknown for clicks without a browser name', async () => {

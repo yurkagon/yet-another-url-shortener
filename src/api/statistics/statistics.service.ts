@@ -10,7 +10,7 @@ export class StatisticsService {
 
   private async findClicksByCode(code: string) {
     return this.prismaService.click.findMany({
-      where: { linkCode: code },
+      where: { link: { code } },
     });
   }
 
