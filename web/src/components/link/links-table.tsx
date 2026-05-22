@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
+import { formatShortLinkLabel } from '@/lib/brand';
 import { type Link as LinkType } from '@/lib/api';
 import { QrCodeModal } from './qr-code-modal';
 
@@ -80,7 +81,7 @@ export function LinksTable({ links }: LinksTableProps) {
                 rel="noopener noreferrer"
                 className="truncate font-[family-name:var(--font-mono)] text-[13px] text-[color:var(--wf-accent)] hover:underline"
               >
-                snip.ly/{link.code}
+                {formatShortLinkLabel(link.code)}
               </a>
               <button
                 type="button"

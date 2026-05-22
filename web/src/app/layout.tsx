@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { JetBrains_Mono, Patrick_Hand } from 'next/font/google';
 import './globals.css';
+import { PROJECT_NAME, PROJECT_TAGLINE } from '@/lib/brand';
 import { Providers } from '@/components/providers';
 
 const patrickHand = Patrick_Hand({
@@ -15,7 +16,7 @@ const jetBrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'snip.ly — tiny links, big insight',
+  title: `${PROJECT_NAME} — ${PROJECT_TAGLINE}`,
   description: 'Shorten any link. Get a QR. Done.',
 };
 

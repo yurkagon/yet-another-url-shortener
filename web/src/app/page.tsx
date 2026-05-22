@@ -12,6 +12,7 @@ import { Logo } from '@/components/wf/logo';
 import { QrPlaceholder } from '@/components/wf/qr-placeholder';
 import { useMe } from '@/hooks/use-auth';
 import { useCreateLink } from '@/hooks/use-links';
+import { formatShortLinkLabel } from '@/lib/brand';
 import { ApiError } from '@/lib/api';
 
 const shortenSchema = z.object({
@@ -192,7 +193,7 @@ export default function LandingPage() {
                   Your short link
                 </span>
                 <span className="font-[family-name:var(--font-mono)] text-[20px] text-[color:var(--wf-muted)]">
-                  snip.ly/—
+                  {formatShortLinkLabel('—')}
                 </span>
                 <span className="text-[11px] text-[color:var(--wf-muted)]">
                   ↳ paste a URL above to start

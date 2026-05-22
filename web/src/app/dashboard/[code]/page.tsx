@@ -8,6 +8,7 @@ import { BrowserChart } from '@/components/statistics/browser-chart';
 import { ClicksChart } from '@/components/statistics/clicks-chart';
 import { CountryChart } from '@/components/statistics/country-chart';
 import { QrPlaceholder } from '@/components/wf/qr-placeholder';
+import { formatShortLinkLabel } from '@/lib/brand';
 import { useBrowserStats, useCountryStats, useTimelineStats } from '@/hooks/use-statistics';
 
 interface Props {
@@ -69,7 +70,7 @@ export default function AnalyticsPage({ params }: Props) {
                 rel="noopener noreferrer"
                 className="font-[family-name:var(--font-mono)] text-[22px] text-[color:var(--wf-accent)] hover:underline"
               >
-                snip.ly/{code}
+                {formatShortLinkLabel(code)}
               </a>
               <span className="text-[11px] text-[color:var(--wf-muted)]">↳ {shortUrl}</span>
               <div className="flex items-center gap-2">

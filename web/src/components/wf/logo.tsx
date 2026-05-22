@@ -1,5 +1,6 @@
 import Link from 'next/link';
 
+import { PROJECT_NAME, PROJECT_SHORT } from '@/lib/brand';
 import { cn } from '@/lib/utils';
 
 interface LogoProps {
@@ -11,6 +12,7 @@ export function Logo({ href = '/', className }: LogoProps) {
   return (
     <Link
       href={href}
+      title={PROJECT_NAME}
       className={cn(
         'inline-flex items-center gap-2 font-[family-name:var(--font-hand)] text-xl tracking-tight text-foreground',
         className,
@@ -20,11 +22,9 @@ export function Logo({ href = '/', className }: LogoProps) {
         aria-hidden
         className="inline-flex size-7 items-center justify-center rounded-md border-[1.5px] border-foreground bg-foreground text-background shadow-[2px_2px_0_0_var(--wf-ink)]"
       >
-        <span className="font-[family-name:var(--font-hand)] text-base leading-none">s</span>
+        <span className="font-[family-name:var(--font-hand)] text-base leading-none">y</span>
       </span>
-      <span>
-        snip<span className="text-[color:var(--wf-accent)]">.</span>ly
-      </span>
+      <span>{PROJECT_SHORT}</span>
     </Link>
   );
 }

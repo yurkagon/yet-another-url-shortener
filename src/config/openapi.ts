@@ -1,4 +1,4 @@
-export const OPENAPI_TITLE = 'URL Shortener API';
+export const OPENAPI_TITLE = 'yet-another-url-shortener API';
 export const OPENAPI_DESCRIPTION = [
   'REST API for creating short links and tracking clicks.',
   'Authentication uses access and refresh JWT tokens stored in httpOnly cookies.',

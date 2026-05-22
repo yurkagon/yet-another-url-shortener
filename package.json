@@ -1,8 +1,8 @@
 {
-  "name": "url-shortener",
+  "name": "yet-another-url-shortener",
   "version": "1.0.0",
   "description": "",
-  "author": "",
+  "author": "Yurii Khvyshchuk",
   "private": true,
   "license": "MIT",
   "engines": {
