@@ -6,5 +6,6 @@ dist
 node_modules
 coverage
 test
+web
 *.spec.ts
 *.e2e-spec.ts

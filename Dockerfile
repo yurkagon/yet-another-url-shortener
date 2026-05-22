@@ -1,44 +1,32 @@
-# ─── Gathering all dependencies ──────────────────────────────────────────────────────────────
-FROM node:24-slim AS deps
+# ─── deps ────────────────────────────────────────────────────────────────────
+FROM node:24-alpine AS deps
 WORKDIR /app
 
 COPY package*.json ./
 RUN npm ci --ignore-scripts
 
-# ─── Gathering only production dependencies ───────────────────────────────────────────────────
-FROM node:24-slim AS deps-prod
-WORKDIR /app
-
-COPY package*.json ./
-RUN npm ci --ignore-scripts --omit=dev
-
-# ─── Taking all dependencies and building the application ─────────────────────────────────────────────────────────────────
-FROM node:24-slim AS builder
+# ─── builder ─────────────────────────────────────────────────────────────────
+FROM node:24-alpine AS builder
 WORKDIR /app
 
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
 RUN npm run db:generate
-RUN npm run build
+RUN npm run build:api
 
-# ─── Running using production dependencies ──────────────────────────────────────────────────────────────────
-FROM node:24-slim AS runner
+# ─── runner ──────────────────────────────────────────────────────────────────
+FROM node:24-alpine AS runner
 WORKDIR /app
-
-RUN apt-get update \
-  && apt-get install -y --no-install-recommends openssl \
-  && apt-get upgrade -y --no-install-recommends \
-  && rm -rf /var/lib/apt/lists/*
 
 ENV NODE_ENV=production
 
-RUN groupadd -r app && useradd -r -g app app
+RUN addgroup -S app && adduser -S app -G app
 
-COPY --chown=app:app --from=deps-prod /app/node_modules ./node_modules
-COPY --chown=app:app --from=builder /app/dist ./dist
-COPY --chown=app:app --from=builder /app/generated ./generated
-COPY --chown=app:app --from=builder /app/package.json ./package.json
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/generated ./generated
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/package.json ./package.json
 
 USER app
 
