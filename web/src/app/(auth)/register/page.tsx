@@ -119,13 +119,6 @@ export default function RegisterPage() {
             )}
           </label>
 
-          <label className="mt-1 flex items-start gap-2">
-            <span className="mt-[2px] inline-block h-3.5 w-3.5 border-[1.5px] border-foreground bg-background" />
-            <span className="text-[11px] text-[color:var(--wf-muted)]">
-              I agree to the Terms of Service and Privacy Policy
-            </span>
-          </label>
-
           <button
             type="submit"
             disabled={register_.isPending}

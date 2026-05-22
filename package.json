@@ -1,10 +1,22 @@
 {
   "name": "yet-another-url-shortener",
   "version": "1.0.0",
-  "description": "",
+  "description": "URL shortener with link analytics and QR codes — NestJS API + Next.js frontend",
   "author": "Yurii Khvyshchuk",
   "private": true,
   "license": "MIT",
+  "keywords": [
+    "url-shortener",
+    "link-shortener",
+    "short-links",
+    "qr-code",
+    "link-analytics",
+    "nestjs",
+    "nextjs",
+    "prisma",
+    "redis",
+    "typescript"
+  ],
   "engines": {
     "node": ">=24.0.0"
   },

@@ -67,9 +67,6 @@ export default function DashboardPage() {
           style={{ minHeight: 32 }}
         />
         <button type="button" className="wf-btn-outline px-3 py-1.5 text-[12px]">
-          Tags ▾
-        </button>
-        <button type="button" className="wf-btn-outline px-3 py-1.5 text-[12px]">
           Date ▾
         </button>
         <button type="button" className="wf-btn-outline px-3 py-1.5 text-[12px]">

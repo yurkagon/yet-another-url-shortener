@@ -7,8 +7,7 @@ import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
 
-import { ThemeToggle } from '@/components/theme-toggle';
-import { Logo } from '@/components/wf/logo';
+import { SiteHeader } from '@/components/layout/site-header';
 import { QrPlaceholder } from '@/components/wf/qr-placeholder';
 import { useMe } from '@/hooks/use-auth';
 import { useCreateLink } from '@/hooks/use-links';
@@ -58,40 +57,7 @@ export default function LandingPage() {
   return (
     <div className="flex min-h-screen flex-col">
       {/* ── Top nav ─────────────────────────────────────────── */}
-      <header className="flex items-center justify-between border-b border-[color:var(--wf-line)] px-10 py-[18px]">
-        <Logo />
-        <nav className="hidden items-center gap-7 sm:flex">
-          <span className="text-[13px] text-[color:var(--wf-muted)]">Pricing</span>
-          <span className="text-[13px] text-[color:var(--wf-muted)]">FAQ</span>
-          <span className="text-[13px] text-[color:var(--wf-muted)]">API</span>
-        </nav>
-        <div className="flex items-center gap-3">
-          <ThemeToggle />
-          {user ? (
-            <Link
-              href="/dashboard"
-              className="wf-btn-solid inline-flex items-center justify-center px-3.5 py-[7px] text-[12px]"
-            >
-              Dashboard
-            </Link>
-          ) : (
-            <>
-              <Link
-                href="/login"
-                className="wf-btn-ghost inline-flex items-center justify-center px-3 py-[6px] text-[12px]"
-              >
-                Log in
-              </Link>
-              <Link
-                href="/register"
-                className="wf-btn-solid inline-flex items-center justify-center px-3.5 py-[7px] text-[12px]"
-              >
-                Sign up
-              </Link>
-            </>
-          )}
-        </div>
-      </header>
+      <SiteHeader />
 
       {/* ── Hero ────────────────────────────────────────────── */}
       <main className="flex flex-1 flex-col items-center gap-7 px-10 pb-20 pt-[70px]">

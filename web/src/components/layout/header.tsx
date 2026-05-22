@@ -25,20 +25,9 @@ export function Header() {
     .toUpperCase();
 
   return (
-    <header className="flex items-center justify-between border-b border-[color:var(--wf-line)] bg-background px-7 py-3">
-      <div className="flex items-center gap-3">
-        <input
-          placeholder="Search links…"
-          className="wf-input h-9 w-[260px] text-[12px]"
-          style={{ minHeight: 32 }}
-        />
-      </div>
-
+    <header className="flex items-center justify-end border-b border-[color:var(--wf-line)] bg-background px-7 py-3">
       <div className="flex items-center gap-3">
         <ThemeToggle />
-        <span className="wf-icon wf-icon-circle h-7 w-7 text-[11px]" aria-hidden>
-          ?
-        </span>
         <span className="inline-flex h-7 w-7 items-center justify-center rounded-full border-[1.5px] border-foreground bg-background text-[11px] font-[family-name:var(--font-hand)]">
           {initials || 'U'}
         </span>

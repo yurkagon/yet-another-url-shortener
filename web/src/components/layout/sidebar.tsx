@@ -9,12 +9,7 @@ import { cn } from '@/lib/utils';
 const navItems: { href: string; label: string; glyph: string; exact?: boolean }[] = [
   { href: '/dashboard', label: 'Links', glyph: '🔗', exact: true },
   { href: '/dashboard/analytics', label: 'Analytics', glyph: '📊' },
-  { href: '/dashboard/qr', label: 'QR codes', glyph: '⌗' },
-  { href: '/dashboard/domains', label: 'Domains', glyph: '◇' },
-  { href: '/dashboard/settings', label: 'Settings', glyph: '⚙' },
 ];
-
-const workspaces = ['📁 Marketing', '📁 Personal', '📁 Side project'];
 
 export function Sidebar() {
   const pathname = usePathname();
@@ -53,30 +48,6 @@ export function Sidebar() {
           );
         })}
       </nav>
-
-      <div className="h-px w-full bg-[color:var(--wf-line)]" />
-
-      <div className="flex flex-col gap-1">
-        <span className="px-2.5 text-[10px] uppercase tracking-wider text-[color:var(--wf-muted)]">
-          Workspace
-        </span>
-        {workspaces.map((w) => (
-          <div key={w} className="px-2.5 py-1.5 text-[12px] text-[color:var(--wf-muted)]">
-            {w}
-          </div>
-        ))}
-      </div>
-
-      <div className="wf-box mt-auto flex flex-col gap-2 p-3">
-        <span className="text-[10px] uppercase tracking-wider text-[color:var(--wf-muted)]">
-          Free plan
-        </span>
-        <div className="relative h-1 w-full overflow-hidden rounded-full bg-[color:var(--wf-muted)]/30">
-          <span className="absolute inset-y-0 left-0 w-[64%] rounded-full bg-foreground" />
-        </div>
-        <span className="text-[10px] text-[color:var(--wf-muted)]">32 / 50 links</span>
-        <span className="text-[11px] text-[color:var(--wf-accent)]">Upgrade →</span>
-      </div>
     </aside>
   );
 }

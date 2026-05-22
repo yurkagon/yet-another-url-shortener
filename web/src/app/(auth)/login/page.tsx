@@ -73,7 +73,6 @@ export default function LoginPage() {
               <span className="text-[10px] uppercase tracking-wider text-[color:var(--wf-muted)]">
                 Password
               </span>
-              <span className="text-[11px] text-[color:var(--wf-accent)]">Forgot?</span>
             </span>
             <input
               type="password"
@@ -86,11 +85,6 @@ export default function LoginPage() {
                 {errors.password.message}
               </span>
             )}
-          </label>
-
-          <label className="flex items-center gap-2">
-            <span className="inline-block h-3.5 w-3.5 border-[1.5px] border-foreground bg-background" />
-            <span className="text-[11px] text-[color:var(--wf-muted)]">Keep me logged in</span>
           </label>
 
           <button

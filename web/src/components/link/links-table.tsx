@@ -47,10 +47,9 @@ export function LinksTable({ links }: LinksTableProps) {
   return (
     <div className="h-full overflow-auto">
       {/* Header row */}
-      <div className="grid grid-cols-[2.4fr_2.6fr_0.9fr_0.8fr_0.8fr_0.8fr_60px] items-center gap-3 border-b border-[color:var(--wf-line)] bg-[color:var(--wf-tint)] px-4 py-3 text-[10px] uppercase tracking-wider text-[color:var(--wf-muted)]">
+      <div className="grid grid-cols-[2.4fr_2.6fr_0.8fr_0.8fr_0.8fr_60px] items-center gap-3 border-b border-[color:var(--wf-line)] bg-[color:var(--wf-tint)] px-4 py-3 text-[10px] uppercase tracking-wider text-[color:var(--wf-muted)]">
         <span>Short link</span>
         <span>Destination</span>
-        <span>Tag</span>
         <span className="text-right">Clicks</span>
         <span className="text-right">CTR</span>
         <span>Created</span>
@@ -60,7 +59,7 @@ export function LinksTable({ links }: LinksTableProps) {
       {links.map((link, i) => (
         <div
           key={link.code}
-          className={`grid grid-cols-[2.4fr_2.6fr_0.9fr_0.8fr_0.8fr_0.8fr_60px] items-center gap-3 px-4 py-3.5 ${
+          className={`grid grid-cols-[2.4fr_2.6fr_0.8fr_0.8fr_0.8fr_60px] items-center gap-3 px-4 py-3.5 ${
             i === links.length - 1 ? '' : 'border-b border-[color:var(--wf-line)]'
           }`}
         >
@@ -102,11 +101,6 @@ export function LinksTable({ links }: LinksTableProps) {
           >
             ↳ {link.originalUrl}
           </a>
-
-          {/* Tag */}
-          <div>
-            <span className="wf-pill">link</span>
-          </div>
 
           {/* Clicks */}
           <span className="text-right text-[13px] font-semibold">—</span>

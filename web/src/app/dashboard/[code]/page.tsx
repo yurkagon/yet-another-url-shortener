@@ -73,10 +73,7 @@ export default function AnalyticsPage({ params }: Props) {
                 {formatShortLinkLabel(code)}
               </a>
               <span className="text-[11px] text-[color:var(--wf-muted)]">↳ {shortUrl}</span>
-              <div className="flex items-center gap-2">
-                <span className="wf-pill">link</span>
-                <span className="text-[10px] text-[color:var(--wf-muted)]">· active</span>
-              </div>
+              <span className="text-[10px] text-[color:var(--wf-muted)]">active</span>
             </div>
           </div>
 
