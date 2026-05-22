@@ -1,14 +1,13 @@
 'use client';
 
-import { ArrowLeft, ExternalLink } from 'lucide-react';
 import Link from 'next/link';
 import { use } from 'react';
+import { toast } from 'sonner';
 
 import { BrowserChart } from '@/components/statistics/browser-chart';
 import { ClicksChart } from '@/components/statistics/clicks-chart';
 import { CountryChart } from '@/components/statistics/country-chart';
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { QrPlaceholder } from '@/components/wf/qr-placeholder';
 import { useBrowserStats, useCountryStats, useTimelineStats } from '@/hooks/use-statistics';
 
 interface Props {
@@ -27,103 +26,180 @@ export default function AnalyticsPage({ params }: Props) {
   const { data: countries = {}, isLoading: loadingCountry } = useCountryStats(code);
 
   const totalClicks = timeline.reduce((sum, d) => sum + d.value, 0);
+  const browserCount = Object.keys(browsers).length;
+  const countryCount = Object.keys(countries).length;
+  const topCountry =
+    Object.entries(countries).sort((a, b) => b[1] - a[1])[0]?.[0] ?? '—';
+  const topBrowser =
+    Object.entries(browsers).sort((a, b) => b[1] - a[1])[0]?.[0] ?? '—';
+
+  const copy = () => {
+    void navigator.clipboard.writeText(shortUrl);
+    toast.success('Copied!');
+  };
+
+  const stats: { label: string; value: string; delta?: string }[] = [
+    { label: 'Clicks', value: totalClicks.toLocaleString(), delta: '+12%' },
+    { label: 'Unique', value: '—', delta: '' },
+    { label: 'Browsers', value: browserCount.toString() },
+    { label: 'Top country', value: topCountry, delta: `${countryCount} total` },
+    { label: 'Top browser', value: topBrowser },
+  ];
 
   return (
-    <div className="space-y-6 max-w-4xl">
-      <div className="flex items-center gap-3">
-        <Link
-          href="/dashboard"
-          className="text-muted-foreground hover:text-foreground transition-colors"
-        >
-          <ArrowLeft className="size-5" />
+    <div className="flex h-full flex-col gap-5 p-7">
+      {/* Breadcrumb */}
+      <nav className="flex items-center gap-1.5 text-[11px] text-[color:var(--wf-muted)]">
+        <Link href="/dashboard" className="hover:text-foreground">
+          Links
         </Link>
-        <div>
-          <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-bold tracking-tight">Analytics</h1>
-            <Badge variant="secondary" className="font-mono text-sm">
-              {code}
-            </Badge>
+        <span>›</span>
+        <span className="text-foreground">{code}</span>
+      </nav>
+
+      {/* Hero header */}
+      <div className="wf-box p-5">
+        <div className="flex items-center justify-between gap-5">
+          <div className="flex items-center gap-4">
+            <QrPlaceholder size={80} />
+            <div className="flex flex-col gap-1.5">
+              <a
+                href={shortUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-[family-name:var(--font-mono)] text-[22px] text-[color:var(--wf-accent)] hover:underline"
+              >
+                snip.ly/{code}
+              </a>
+              <span className="text-[11px] text-[color:var(--wf-muted)]">↳ {shortUrl}</span>
+              <div className="flex items-center gap-2">
+                <span className="wf-pill">link</span>
+                <span className="text-[10px] text-[color:var(--wf-muted)]">· active</span>
+              </div>
+            </div>
           </div>
-          <a
-            href={shortUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-sm text-muted-foreground hover:underline flex items-center gap-1"
-          >
-            {shortUrl}
-            <ExternalLink className="size-3" />
-          </a>
+
+          <div className="flex items-center gap-1.5">
+            <button
+              type="button"
+              onClick={copy}
+              className="wf-btn-outline px-3 py-1.5 text-[12px]"
+            >
+              ⎘ Copy
+            </button>
+            <button type="button" className="wf-btn-outline px-3 py-1.5 text-[12px]">
+              ⬇ QR
+            </button>
+            <button type="button" className="wf-btn-outline px-3 py-1.5 text-[12px]">
+              ✎ Edit
+            </button>
+            <button type="button" className="wf-btn-outline px-3 py-1.5 text-[12px]">
+              ⋯
+            </button>
+          </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Total clicks
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-3xl font-bold">{totalClicks}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Browsers</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-3xl font-bold">{Object.keys(browsers).length}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Countries</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-3xl font-bold">{Object.keys(countries).length}</p>
-          </CardContent>
-        </Card>
+      {/* Stat strip */}
+      <div className="flex gap-3">
+        {stats.map(({ label, value, delta }) => (
+          <div key={label} className="wf-box flex-1 p-3.5">
+            <div className="flex flex-col gap-1">
+              <span className="text-[10px] uppercase tracking-wider text-[color:var(--wf-muted)]">
+                {label}
+              </span>
+              <span className="font-[family-name:var(--font-hand)] text-[20px] font-bold leading-tight">
+                {value}
+              </span>
+              {delta && (
+                <span className="text-[10px] text-[color:var(--wf-accent)]">{delta}</span>
+              )}
+            </div>
+          </div>
+        ))}
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Clicks over time</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {loadingTimeline ? (
-            <ChartSkeleton />
-          ) : (
-            <ClicksChart data={timeline} />
-          )}
-        </CardContent>
-      </Card>
+      {/* Main grid */}
+      <div className="flex flex-1 gap-4">
+        {/* Timeline chart */}
+        <div className="wf-box flex flex-[1.7] flex-col gap-3 p-5">
+          <div className="flex items-end justify-between">
+            <div className="flex flex-col gap-0.5">
+              <span className="font-[family-name:var(--font-hand)] text-[15px] font-bold">
+                Clicks over time
+              </span>
+              <span className="text-[10px] text-[color:var(--wf-muted)]">
+                last 30 days · daily granularity
+              </span>
+            </div>
+            <div className="flex gap-1">
+              <button type="button" className="wf-btn-ghost px-2.5 py-1 text-[11px]">
+                24h
+              </button>
+              <button type="button" className="wf-btn-outline px-2.5 py-1 text-[11px]">
+                7d
+              </button>
+              <button type="button" className="wf-btn-ghost px-2.5 py-1 text-[11px]">
+                30d
+              </button>
+              <button type="button" className="wf-btn-ghost px-2.5 py-1 text-[11px]">
+                All
+              </button>
+            </div>
+          </div>
+          {loadingTimeline ? <ChartSkeleton /> : <ClicksChart data={timeline} />}
+          <div className="flex gap-5 text-[11px]">
+            <span className="flex items-center gap-1.5">
+              <span className="inline-block h-2 w-2 rounded-sm bg-foreground" />
+              Total clicks
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="inline-block h-2 w-2 rounded-sm bg-[color:var(--wf-accent)]" />
+              Unique visitors
+            </span>
+          </div>
+        </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Browsers</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {loadingBrowser ? <ChartSkeleton /> : <BrowserChart data={browsers} />}
-          </CardContent>
-        </Card>
+        {/* Right column */}
+        <div className="flex flex-1 flex-col gap-4">
+          <div className="wf-box p-4">
+            <div className="flex flex-col gap-2.5">
+              <span className="font-[family-name:var(--font-hand)] text-[14px] font-bold">
+                Top countries
+              </span>
+              {loadingCountry ? (
+                <ChartSkeleton small />
+              ) : (
+                <CountryChart data={countries} />
+              )}
+            </div>
+          </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Countries</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {loadingCountry ? <ChartSkeleton /> : <CountryChart data={countries} />}
-          </CardContent>
-        </Card>
+          <div className="wf-box p-4">
+            <div className="flex flex-col gap-2.5">
+              <span className="font-[family-name:var(--font-hand)] text-[14px] font-bold">
+                Browsers
+              </span>
+              {loadingBrowser ? (
+                <ChartSkeleton small />
+              ) : (
+                <BrowserChart data={browsers} />
+              )}
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
 }
 
-function ChartSkeleton() {
+function ChartSkeleton({ small }: { small?: boolean }) {
   return (
-    <div className="h-[220px] flex items-center justify-center text-muted-foreground text-sm animate-pulse">
+    <div
+      className={`flex items-center justify-center text-[12px] text-[color:var(--wf-muted)] ${
+        small ? 'h-[160px]' : 'h-[220px]'
+      }`}
+    >
       Loading…
     </div>
   );

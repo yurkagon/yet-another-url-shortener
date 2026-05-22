@@ -1,15 +1,15 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { ArrowRight, Copy, ExternalLink, Link2 } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
 
-import { Button, buttonVariants } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { ThemeToggle } from '@/components/theme-toggle';
+import { Logo } from '@/components/wf/logo';
+import { QrPlaceholder } from '@/components/wf/qr-placeholder';
 import { useMe } from '@/hooks/use-auth';
 import { useCreateLink } from '@/hooks/use-links';
 import { ApiError } from '@/lib/api';
@@ -17,13 +17,12 @@ import { ApiError } from '@/lib/api';
 const shortenSchema = z.object({
   url: z.string().url('Please enter a valid URL'),
 });
-
 type ShortenForm = z.infer<typeof shortenSchema>;
 
 export default function LandingPage() {
   const { data: user } = useMe();
   const createLink = useCreateLink();
-  const [shortUrl, setShortUrl] = useState<string | null>(null);
+  const [result, setResult] = useState<{ short: string; original: string } | null>(null);
 
   const {
     register,
@@ -37,116 +36,213 @@ export default function LandingPage() {
       toast.error('Please sign in to shorten links');
       return;
     }
-
     createLink.mutate(data.url, {
-      onSuccess: (url) => {
-        setShortUrl(url);
+      onSuccess: (short) => {
+        setResult({ short, original: data.url });
         reset();
         toast.success('Short link created!');
       },
       onError: (err) => {
-        const message = err instanceof ApiError ? err.message : 'Failed to shorten URL';
-        toast.error(message);
+        toast.error(err instanceof ApiError ? err.message : 'Failed to shorten URL');
       },
     });
   };
 
-  const copyToClipboard = () => {
-    if (!shortUrl) return;
-    void navigator.clipboard.writeText(shortUrl);
+  const copy = () => {
+    if (!result) return;
+    void navigator.clipboard.writeText(result.short);
     toast.success('Copied to clipboard!');
   };
 
   return (
-    <div className="flex flex-col min-h-screen">
-      <header className="border-b px-6 h-14 flex items-center justify-between">
-        <div className="flex items-center gap-2 font-semibold">
-          <Link2 className="size-5" />
-          <span>Shrtnr</span>
-        </div>
-        <nav className="flex items-center gap-3">
+    <div className="flex min-h-screen flex-col">
+      {/* ── Top nav ─────────────────────────────────────────── */}
+      <header className="flex items-center justify-between border-b border-[color:var(--wf-line)] px-10 py-[18px]">
+        <Logo />
+        <nav className="hidden items-center gap-7 sm:flex">
+          <span className="text-[13px] text-[color:var(--wf-muted)]">Pricing</span>
+          <span className="text-[13px] text-[color:var(--wf-muted)]">FAQ</span>
+          <span className="text-[13px] text-[color:var(--wf-muted)]">API</span>
+        </nav>
+        <div className="flex items-center gap-3">
+          <ThemeToggle />
           {user ? (
-            <Link href="/dashboard" className={buttonVariants({ size: 'sm' })}>
+            <Link
+              href="/dashboard"
+              className="wf-btn-solid inline-flex items-center justify-center px-3.5 py-[7px] text-[12px]"
+            >
               Dashboard
             </Link>
           ) : (
             <>
-              <Link href="/login" className={buttonVariants({ variant: 'ghost', size: 'sm' })}>
-                Sign in
+              <Link
+                href="/login"
+                className="wf-btn-ghost inline-flex items-center justify-center px-3 py-[6px] text-[12px]"
+              >
+                Log in
               </Link>
-              <Link href="/register" className={buttonVariants({ size: 'sm' })}>
-                Get started
+              <Link
+                href="/register"
+                className="wf-btn-solid inline-flex items-center justify-center px-3.5 py-[7px] text-[12px]"
+              >
+                Sign up
               </Link>
             </>
           )}
-        </nav>
+        </div>
       </header>
 
-      <main className="flex-1 flex flex-col items-center justify-center px-4 py-20 gap-8">
-        <div className="text-center space-y-3 max-w-xl">
-          <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
-            Shorten. Share. Track.
+      {/* ── Hero ────────────────────────────────────────────── */}
+      <main className="flex flex-1 flex-col items-center gap-7 px-10 pb-20 pt-[70px]">
+        <div className="flex flex-col items-center gap-2.5">
+          <h1 className="font-[family-name:var(--font-hand)] text-[42px] font-bold leading-tight">
+            Shorten any link.
           </h1>
-          <p className="text-muted-foreground text-lg">
-            Turn long URLs into clean, trackable short links in seconds.
-          </p>
+          <h1 className="font-[family-name:var(--font-hand)] text-[42px] font-bold leading-tight text-[color:var(--wf-accent)]">
+            Get a QR. Done.
+          </h1>
         </div>
 
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          className="flex flex-col sm:flex-row w-full max-w-lg gap-2"
-        >
-          <div className="flex-1 space-y-1">
-            <Input
-              placeholder="https://example.com/very/long/url"
-              {...register('url')}
-              className="h-11"
-            />
-            {errors.url && <p className="text-destructive text-sm">{errors.url.message}</p>}
-          </div>
-          <Button type="submit" className="h-11 shrink-0" disabled={createLink.isPending}>
-            Shorten
-            <ArrowRight className="size-4 ml-1" />
-          </Button>
-        </form>
+        <p className="max-w-[520px] text-center text-sm text-[color:var(--wf-muted)]">
+          Paste a long URL. We give you a short link + QR code, instantly. No account needed for
+          one-offs.
+        </p>
 
-        {shortUrl && (
-          <div className="flex items-center gap-2 p-3 rounded-lg border bg-muted/40 text-sm max-w-lg w-full">
-            <a
-              href={shortUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex-1 truncate font-medium hover:underline"
+        {/* Form */}
+        <div className="w-full max-w-[680px]">
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="wf-box flex items-center gap-2 p-2"
+          >
+            <span className="px-2 text-[color:var(--wf-muted)]" aria-hidden>
+              🔗
+            </span>
+            <input
+              {...register('url')}
+              placeholder="https://your-very-long-link.example.com/article/2025/..."
+              className="flex-1 bg-transparent px-1 py-2 text-[13px] outline-none placeholder:text-[color:var(--wf-muted)]"
+            />
+            <button
+              type="submit"
+              disabled={createLink.isPending}
+              className="wf-btn-solid inline-flex items-center justify-center px-4 py-[10px] text-[13px] disabled:opacity-60"
             >
-              {shortUrl}
-            </a>
-            <Button size="icon" variant="ghost" onClick={copyToClipboard} title="Copy">
-              <Copy className="size-4" />
-            </Button>
-            <a
-              href={shortUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              title="Open"
-              className={buttonVariants({ size: 'icon', variant: 'ghost' })}
-            >
-              <ExternalLink className="size-4" />
-            </a>
+              {createLink.isPending ? 'Shortening…' : 'Shorten →'}
+            </button>
+          </form>
+          {errors.url && (
+            <p className="mt-2 text-center text-xs text-[color:var(--wf-accent)]">
+              {errors.url.message}
+            </p>
+          )}
+
+          <div className="mt-2.5 flex items-center justify-center gap-4">
+            <span className="text-[11px] text-[color:var(--wf-muted)]">+ custom slug</span>
+            <span className="text-[11px] text-[color:var(--wf-muted)]">+ QR code</span>
+            <span className="text-[11px] text-[color:var(--wf-muted)]">+ click stats (free)</span>
+          </div>
+        </div>
+
+        {/* Result preview card */}
+        {result && (
+          <div className="wf-box w-full max-w-[680px] p-[18px]">
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex flex-1 flex-col gap-1.5">
+                <span className="text-[11px] uppercase text-[color:var(--wf-muted)]">
+                  Your short link
+                </span>
+                <a
+                  href={result.short}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-[family-name:var(--font-mono)] text-[20px] text-[color:var(--wf-accent)] hover:underline"
+                >
+                  {result.short}
+                </a>
+                <span className="truncate text-[11px] text-[color:var(--wf-muted)]">
+                  ↳ {result.original}
+                </span>
+              </div>
+              <QrPlaceholder size={88} />
+              <div className="flex flex-col gap-2">
+                <button
+                  type="button"
+                  onClick={copy}
+                  className="wf-btn-outline inline-flex items-center justify-center px-3 py-1.5 text-[12px]"
+                >
+                  Copy
+                </button>
+                <button
+                  type="button"
+                  className="wf-btn-outline inline-flex items-center justify-center px-3 py-1.5 text-[12px]"
+                >
+                  ⬇ QR
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* fallback empty preview when no result yet */}
+        {!result && (
+          <div className="wf-box w-full max-w-[680px] p-[18px]">
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex flex-1 flex-col gap-1.5">
+                <span className="text-[11px] uppercase text-[color:var(--wf-muted)]">
+                  Your short link
+                </span>
+                <span className="font-[family-name:var(--font-mono)] text-[20px] text-[color:var(--wf-muted)]">
+                  snip.ly/—
+                </span>
+                <span className="text-[11px] text-[color:var(--wf-muted)]">
+                  ↳ paste a URL above to start
+                </span>
+              </div>
+              <QrPlaceholder size={88} />
+              <div className="flex flex-col gap-2">
+                <button
+                  type="button"
+                  disabled
+                  className="wf-btn-outline inline-flex items-center justify-center px-3 py-1.5 text-[12px] opacity-50"
+                >
+                  Copy
+                </button>
+                <button
+                  type="button"
+                  disabled
+                  className="wf-btn-outline inline-flex items-center justify-center px-3 py-1.5 text-[12px] opacity-50"
+                >
+                  ⬇ QR
+                </button>
+              </div>
+            </div>
           </div>
         )}
 
         {!user && (
-          <p className="text-sm text-muted-foreground">
-            <Link href="/register" className="underline underline-offset-4 hover:text-primary">
-              Create a free account
+          <p className="text-sm text-[color:var(--wf-muted)]">
+            <Link href="/register" className="text-[color:var(--wf-accent)] hover:underline">
+              Create a free account →
             </Link>{' '}
-            to shorten links and view analytics.
+            to keep your links and view stats.
           </p>
         )}
       </main>
 
-      <footer className="border-t py-6 text-center text-sm text-muted-foreground">
-        © {new Date().getFullYear()} Shrtnr
+      {/* ── Footer hints ────────────────────────────────────── */}
+      <footer className="flex items-center justify-center gap-9 border-t border-[color:var(--wf-line)] py-7">
+        <span className="flex items-center gap-1.5 text-[11px] text-[color:var(--wf-muted)]">
+          <span className="wf-icon wf-icon-circle h-4 w-4 text-[10px]">✓</span>
+          free forever
+        </span>
+        <span className="flex items-center gap-1.5 text-[11px] text-[color:var(--wf-muted)]">
+          <span className="wf-icon wf-icon-circle h-4 w-4 text-[10px]">✓</span>
+          no card required
+        </span>
+        <span className="flex items-center gap-1.5 text-[11px] text-[color:var(--wf-muted)]">
+          <span className="wf-icon wf-icon-circle h-4 w-4 text-[10px]">✓</span>
+          QR included
+        </span>
       </footer>
     </div>
   );

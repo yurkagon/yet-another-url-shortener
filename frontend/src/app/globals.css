@@ -7,9 +7,9 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-sans);
-  --font-mono: var(--font-geist-mono);
-  --font-heading: var(--font-sans);
+  --font-sans: var(--font-hand);
+  --font-mono: var(--font-mono);
+  --font-heading: var(--font-hand);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -39,92 +39,237 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
-  --radius-sm: calc(var(--radius) * 0.6);
-  --radius-md: calc(var(--radius) * 0.8);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) * 1.4);
-  --radius-2xl: calc(var(--radius) * 1.8);
-  --radius-3xl: calc(var(--radius) * 2.2);
-  --radius-4xl: calc(var(--radius) * 2.6);
+  --radius-sm: 6px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 10px;
+  --radius-2xl: 12px;
+  --radius-3xl: 16px;
+  --radius-4xl: 999px;
 }
 
+/* ─── Paper wireframe tokens ─────────────────────────────── */
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --radius: 0.5rem;
+
+  /* paper palette */
+  --wf-paper: #fbfaf6;
+  --wf-tint:  #f1efe7;
+  --wf-ink:   #1d1d1b;
+  --wf-muted: #6b6960;
+  --wf-line:  #c9c4b4;
+  --wf-accent: #e5563c;
+
+  --background: #fbfaf6;
+  --foreground: #1d1d1b;
+
+  --card: #fbfaf6;
+  --card-foreground: #1d1d1b;
+
+  --popover: #fbfaf6;
+  --popover-foreground: #1d1d1b;
+
+  /* primary = ink (solid button = black on paper) */
+  --primary: #1d1d1b;
+  --primary-foreground: #fbfaf6;
+
+  --secondary: #f1efe7;
+  --secondary-foreground: #1d1d1b;
+
+  --muted: #f1efe7;
+  --muted-foreground: #6b6960;
+
+  --accent: #e5563c;
+  --accent-foreground: #fbfaf6;
+
+  --destructive: #c0392b;
+
+  --border: #1d1d1b;
+  --input: #1d1d1b;
+  --ring: #1d1d1b;
+
+  --chart-1: #1d1d1b;
+  --chart-2: #e5563c;
+  --chart-3: #6b6960;
+  --chart-4: #c9c4b4;
+  --chart-5: #1d1d1b;
+
+  --sidebar: #f1efe7;
+  --sidebar-foreground: #1d1d1b;
+  --sidebar-primary: #1d1d1b;
+  --sidebar-primary-foreground: #fbfaf6;
+  --sidebar-accent: #fbfaf6;
+  --sidebar-accent-foreground: #1d1d1b;
+  --sidebar-border: #c9c4b4;
+  --sidebar-ring: #1d1d1b;
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --wf-paper: #1a1a1a;
+  --wf-tint:  #232321;
+  --wf-ink:   #f5f4ee;
+  --wf-muted: #9a978c;
+  --wf-line:  #3a3a37;
+  --wf-accent: #e5563c;
+
+  --background: #1a1a1a;
+  --foreground: #f5f4ee;
+
+  --card: #1a1a1a;
+  --card-foreground: #f5f4ee;
+
+  --popover: #1a1a1a;
+  --popover-foreground: #f5f4ee;
+
+  --primary: #f5f4ee;
+  --primary-foreground: #1a1a1a;
+
+  --secondary: #232321;
+  --secondary-foreground: #f5f4ee;
+
+  --muted: #232321;
+  --muted-foreground: #9a978c;
+
+  --accent: #e5563c;
+  --accent-foreground: #1a1a1a;
+
+  --destructive: #e5563c;
+
+  --border: #f5f4ee;
+  --input: #f5f4ee;
+  --ring: #f5f4ee;
+
+  --chart-1: #f5f4ee;
+  --chart-2: #e5563c;
+  --chart-3: #9a978c;
+  --chart-4: #3a3a37;
+  --chart-5: #f5f4ee;
+
+  --sidebar: #232321;
+  --sidebar-foreground: #f5f4ee;
+  --sidebar-primary: #f5f4ee;
+  --sidebar-primary-foreground: #1a1a1a;
+  --sidebar-accent: #1a1a1a;
+  --sidebar-accent-foreground: #f5f4ee;
+  --sidebar-border: #3a3a37;
+  --sidebar-ring: #f5f4ee;
 }
 
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
+  html, body {
+    background: var(--wf-paper);
+    color: var(--wf-ink);
+  }
   body {
-    @apply bg-background text-foreground;
+    font-family: var(--font-mono), 'JetBrains Mono', ui-monospace, Menlo, monospace;
   }
-  html {
-    @apply font-sans;
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-hand), 'Patrick Hand', 'Caveat', system-ui, sans-serif;
+    letter-spacing: 0.01em;
   }
+}
+
+/* ─── Paper wireframe primitives ─────────────────────────── */
+@layer components {
+  /* Box: ink-bordered card with hard offset shadow */
+  .wf-box {
+    border: 1.5px solid var(--wf-ink);
+    border-radius: 8px;
+    padding: 12px;
+    background: var(--wf-paper);
+    box-shadow: 2px 2px 0 0 var(--wf-ink);
+  }
+  .wf-box-lg {
+    box-shadow: 5px 6px 0 0 var(--wf-ink);
+  }
+  .wf-box-dashed {
+    border-style: dashed;
+    border-color: var(--wf-muted);
+    box-shadow: none;
+  }
+
+  /* Solid (ink) button */
+  .wf-btn-solid {
+    border: 1.5px solid var(--wf-ink);
+    border-radius: 6px;
+    background: var(--wf-ink);
+    color: var(--wf-paper);
+    box-shadow: 2px 2px 0 0 var(--wf-ink);
+    transition: transform 80ms ease, box-shadow 80ms ease;
+  }
+  .wf-btn-solid:active {
+    transform: translate(2px, 2px);
+    box-shadow: 0 0 0 0 var(--wf-ink);
+  }
+
+  /* Outline (paper) button */
+  .wf-btn-outline {
+    border: 1.5px solid var(--wf-ink);
+    border-radius: 6px;
+    background: var(--wf-paper);
+    color: var(--wf-ink);
+    box-shadow: 2px 2px 0 0 var(--wf-ink);
+    transition: transform 80ms ease, box-shadow 80ms ease;
+  }
+  .wf-btn-outline:active {
+    transform: translate(2px, 2px);
+    box-shadow: 0 0 0 0 var(--wf-ink);
+  }
+
+  /* Ghost (dashed) button */
+  .wf-btn-ghost {
+    border: 1px dashed var(--wf-muted);
+    border-radius: 6px;
+    background: transparent;
+    color: var(--wf-muted);
+    box-shadow: none;
+  }
+
+  /* Input with ink 1.5 border */
+  .wf-input {
+    border: 1.5px solid var(--wf-ink);
+    border-radius: 6px;
+    background: var(--wf-paper);
+    color: var(--wf-ink);
+    padding: 10px 12px;
+    min-height: 38px;
+    width: 100%;
+    font-family: inherit;
+  }
+  .wf-input::placeholder {
+    color: var(--wf-muted);
+    opacity: 1;
+  }
+  .wf-input:focus-visible {
+    outline: 2px solid var(--wf-accent);
+    outline-offset: -1px;
+  }
+
+  /* dashed pill */
+  .wf-pill {
+    display: inline-flex;
+    align-items: center;
+    border: 1px dashed var(--wf-muted);
+    border-radius: 999px;
+    padding: 2px 10px;
+    font-family: var(--font-mono), 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--wf-muted);
+  }
+
+  /* Hand-drawn icon placeholder */
+  .wf-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1.2px dashed var(--wf-muted);
+    color: var(--wf-muted);
+    border-radius: 4px;
+    font-family: var(--font-mono), 'JetBrains Mono', monospace;
+    line-height: 1;
+  }
+  .wf-icon-circle { border-radius: 50%; }
 }

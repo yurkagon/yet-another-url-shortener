@@ -6,10 +6,6 @@ import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
 
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { useLogin } from '@/hooks/use-auth';
 import { ApiError } from '@/lib/api';
 
@@ -17,7 +13,6 @@ const loginSchema = z.object({
   email: z.string().email('Invalid email'),
   password: z.string().min(8, 'Password must be at least 8 characters'),
 });
-
 type LoginForm = z.infer<typeof loginSchema>;
 
 export default function LoginPage() {
@@ -31,47 +26,92 @@ export default function LoginPage() {
 
   const onSubmit = (data: LoginForm) => {
     login.mutate(data, {
-      onError: (err) => {
-        const message = err instanceof ApiError ? err.message : 'Login failed';
-        toast.error(message);
-      },
+      onError: (err) => toast.error(err instanceof ApiError ? err.message : 'Login failed'),
     });
   };
 
   return (
-    <Card className="w-full max-w-sm">
-      <CardHeader>
-        <CardTitle>Sign in</CardTitle>
-        <CardDescription>Enter your credentials to access your dashboard</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <div className="space-y-1.5">
-            <Label htmlFor="email">Email</Label>
-            <Input id="email" type="email" placeholder="ada@example.com" {...register('email')} />
-            {errors.email && <p className="text-destructive text-sm">{errors.email.message}</p>}
-          </div>
-
-          <div className="space-y-1.5">
-            <Label htmlFor="password">Password</Label>
-            <Input id="password" type="password" {...register('password')} />
-            {errors.password && (
-              <p className="text-destructive text-sm">{errors.password.message}</p>
-            )}
-          </div>
-
-          <Button type="submit" className="w-full" disabled={login.isPending}>
-            {login.isPending ? 'Signing in…' : 'Sign in'}
-          </Button>
-
-          <p className="text-center text-sm text-muted-foreground">
-            No account?{' '}
-            <Link href="/register" className="underline underline-offset-4 hover:text-primary">
-              Register
-            </Link>
+    <div className="flex w-full max-w-[420px] flex-col gap-5">
+      <div className="wf-box wf-box-lg flex flex-col gap-5 p-8">
+        <div className="flex flex-col items-center gap-1">
+          <h1 className="font-[family-name:var(--font-hand)] text-[26px] font-bold">
+            Welcome back
+          </h1>
+          <p className="text-[12px] text-[color:var(--wf-muted)]">
+            Log in to manage your links
           </p>
+        </div>
+
+        <div className="flex items-center gap-2.5">
+          <span className="h-px flex-1 bg-[color:var(--wf-line)]" />
+          <span className="text-[10px] uppercase tracking-wider text-[color:var(--wf-muted)]">
+            With email
+          </span>
+          <span className="h-px flex-1 bg-[color:var(--wf-line)]" />
+        </div>
+
+        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-3">
+          <label className="flex flex-col gap-1.5">
+            <span className="text-[10px] uppercase tracking-wider text-[color:var(--wf-muted)]">
+              Email
+            </span>
+            <input
+              type="email"
+              placeholder="you@example.com"
+              {...register('email')}
+              className="wf-input text-[13px]"
+            />
+            {errors.email && (
+              <span className="text-[11px] text-[color:var(--wf-accent)]">
+                {errors.email.message}
+              </span>
+            )}
+          </label>
+
+          <label className="flex flex-col gap-1.5">
+            <span className="flex items-center justify-between">
+              <span className="text-[10px] uppercase tracking-wider text-[color:var(--wf-muted)]">
+                Password
+              </span>
+              <span className="text-[11px] text-[color:var(--wf-accent)]">Forgot?</span>
+            </span>
+            <input
+              type="password"
+              placeholder="••••••••"
+              {...register('password')}
+              className="wf-input text-[13px]"
+            />
+            {errors.password && (
+              <span className="text-[11px] text-[color:var(--wf-accent)]">
+                {errors.password.message}
+              </span>
+            )}
+          </label>
+
+          <label className="flex items-center gap-2">
+            <span className="inline-block h-3.5 w-3.5 border-[1.5px] border-foreground bg-background" />
+            <span className="text-[11px] text-[color:var(--wf-muted)]">Keep me logged in</span>
+          </label>
+
+          <button
+            type="submit"
+            disabled={login.isPending}
+            className="wf-btn-solid mt-1 inline-flex w-full items-center justify-center px-4 py-2.5 text-[13px] disabled:opacity-60"
+          >
+            {login.isPending ? 'Logging in…' : 'Log in'}
+          </button>
         </form>
-      </CardContent>
-    </Card>
+      </div>
+
+      <p className="text-center text-[11px] text-[color:var(--wf-muted)]">
+        Don&apos;t have an account?{' '}
+        <Link href="/register" className="text-[color:var(--wf-accent)]">
+          Sign up →
+        </Link>
+      </p>
+      <p className="text-center text-[10px] text-[color:var(--wf-muted)]">
+        By logging in you agree to our Terms &amp; Privacy
+      </p>
+    </div>
   );
 }

@@ -1,13 +1,15 @@
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000/v1';
 
 async function api<T = unknown>(path: string, init?: RequestInit): Promise<T> {
+  const { headers: initHeaders, ...restInit } = init ?? {};
+
   const res = await fetch(`${BASE_URL}${path}`, {
     credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
-      ...(init?.headers ?? {}),
+      ...(initHeaders ?? {}),
     },
-    ...init,
+    ...restInit,
   });
 
   if (!res.ok) {
@@ -17,7 +19,11 @@ async function api<T = unknown>(path: string, init?: RequestInit): Promise<T> {
 
   if (res.status === 204) return undefined as T;
 
-  return res.json() as Promise<T>;
+  const contentType = res.headers.get('content-type') ?? '';
+  if (contentType.includes('application/json')) {
+    return res.json() as Promise<T>;
+  }
+  return res.text() as unknown as T;
 }
 
 export class ApiError extends Error {

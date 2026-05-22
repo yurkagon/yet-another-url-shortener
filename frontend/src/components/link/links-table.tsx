@@ -1,20 +1,9 @@
 'use client';
 
-import { BarChart2, Copy, ExternalLink, QrCode } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
-import { Badge } from '@/components/ui/badge';
-import { Button, buttonVariants } from '@/components/ui/button';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
 import { type Link as LinkType } from '@/lib/api';
 import { QrCodeModal } from './qr-code-modal';
 
@@ -28,6 +17,16 @@ function buildShortUrl(code: string) {
   return `${APP_URL}/l/${code}`;
 }
 
+function timeAgo(iso: string) {
+  const diffMs = Date.now() - new Date(iso).getTime();
+  const diffDays = Math.floor(diffMs / 86_400_000);
+  if (diffDays === 0) return 'today';
+  if (diffDays === 1) return '1d ago';
+  if (diffDays < 7) return `${diffDays}d ago`;
+  if (diffDays < 30) return `${Math.floor(diffDays / 7)}w ago`;
+  return `${Math.floor(diffDays / 30)}mo ago`;
+}
+
 export function LinksTable({ links }: LinksTableProps) {
   const [qrCode, setQrCode] = useState<string | null>(null);
 
@@ -38,86 +37,101 @@ export function LinksTable({ links }: LinksTableProps) {
 
   if (links.length === 0) {
     return (
-      <div className="text-center py-16 text-muted-foreground">
+      <div className="flex h-full items-center justify-center py-16 text-[13px] text-[color:var(--wf-muted)]">
         No links yet. Create your first one above.
       </div>
     );
   }
 
   return (
-    <>
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Original URL</TableHead>
-            <TableHead>Short link</TableHead>
-            <TableHead>Created</TableHead>
-            <TableHead className="text-right">Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {links.map((link) => (
-            <TableRow key={link.code}>
-              <TableCell className="max-w-xs truncate">
-                <a
-                  href={link.originalUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hover:underline text-muted-foreground"
-                >
-                  {link.originalUrl}
-                </a>
-              </TableCell>
-              <TableCell>
-                <Badge variant="secondary" className="font-mono">
-                  {link.code}
-                </Badge>
-              </TableCell>
-              <TableCell className="text-muted-foreground text-sm">
-                {new Date(link.createdAt).toLocaleDateString()}
-              </TableCell>
-              <TableCell>
-                <div className="flex justify-end gap-1">
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    title="Copy short URL"
-                    onClick={() => copy(link.code)}
-                  >
-                    <Copy className="size-4" />
-                  </Button>
-                  <a
-                    href={buildShortUrl(link.code)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    title="Open short URL"
-                    className={buttonVariants({ size: 'icon', variant: 'ghost' })}
-                  >
-                    <ExternalLink className="size-4" />
-                  </a>
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    title="QR code"
-                    onClick={() => setQrCode(link.code)}
-                  >
-                    <QrCode className="size-4" />
-                  </Button>
-                  <Link
-                    href={`/dashboard/${link.code}`}
-                    title="Analytics"
-                    className={buttonVariants({ size: 'icon', variant: 'ghost' })}
-                  >
-                    <BarChart2 className="size-4" />
-                  </Link>
-                </div>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+    <div className="h-full overflow-auto">
+      {/* Header row */}
+      <div className="grid grid-cols-[2.4fr_2.6fr_0.9fr_0.8fr_0.8fr_0.8fr_60px] items-center gap-3 border-b border-[color:var(--wf-line)] bg-[color:var(--wf-tint)] px-4 py-3 text-[10px] uppercase tracking-wider text-[color:var(--wf-muted)]">
+        <span>Short link</span>
+        <span>Destination</span>
+        <span>Tag</span>
+        <span className="text-right">Clicks</span>
+        <span className="text-right">CTR</span>
+        <span>Created</span>
+        <span />
+      </div>
+
+      {links.map((link, i) => (
+        <div
+          key={link.code}
+          className={`grid grid-cols-[2.4fr_2.6fr_0.9fr_0.8fr_0.8fr_0.8fr_60px] items-center gap-3 px-4 py-3.5 ${
+            i === links.length - 1 ? '' : 'border-b border-[color:var(--wf-line)]'
+          }`}
+        >
+          {/* Short link + QR thumb */}
+          <div className="flex items-center gap-2.5">
+            <button
+              type="button"
+              onClick={() => setQrCode(link.code)}
+              className="wf-box-dashed flex h-7 w-7 items-center justify-center rounded-md border-[1.5px] text-[9px] text-[color:var(--wf-muted)]"
+              title="QR"
+            >
+              QR
+            </button>
+            <div className="flex min-w-0 flex-col gap-0.5">
+              <a
+                href={buildShortUrl(link.code)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="truncate font-[family-name:var(--font-mono)] text-[13px] text-[color:var(--wf-accent)] hover:underline"
+              >
+                snip.ly/{link.code}
+              </a>
+              <button
+                type="button"
+                onClick={() => copy(link.code)}
+                className="self-start text-[10px] text-[color:var(--wf-muted)] hover:text-foreground"
+              >
+                ⎘ copy
+              </button>
+            </div>
+          </div>
+
+          {/* Destination */}
+          <a
+            href={link.originalUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="block truncate text-[12px] text-[color:var(--wf-muted)] hover:underline"
+          >
+            ↳ {link.originalUrl}
+          </a>
+
+          {/* Tag */}
+          <div>
+            <span className="wf-pill">link</span>
+          </div>
+
+          {/* Clicks */}
+          <span className="text-right text-[13px] font-semibold">—</span>
+
+          {/* CTR */}
+          <span className="text-right text-[11px] text-[color:var(--wf-muted)]">—</span>
+
+          {/* Created */}
+          <span className="text-[11px] text-[color:var(--wf-muted)]">
+            {timeAgo(link.createdAt)}
+          </span>
+
+          {/* Actions */}
+          <div className="flex items-center justify-end gap-1.5">
+            <Link
+              href={`/dashboard/${link.code}`}
+              title="Stats"
+              className="text-[14px] text-[color:var(--wf-muted)] hover:text-foreground"
+            >
+              ⋯
+            </Link>
+          </div>
+        </div>
+      ))}
 
       <QrCodeModal code={qrCode} onClose={() => setQrCode(null)} />
-    </>
+    </div>
   );
 }
