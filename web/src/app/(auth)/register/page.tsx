@@ -7,7 +7,7 @@ import { toast } from 'sonner';
 import { z } from 'zod';
 
 import { useRegister } from '@/hooks/use-auth';
-import { ApiError } from '@/lib/api';
+import { ApiError } from '@/services';
 
 const registerSchema = z.object({
   name: z.string().min(2, 'At least 2 characters').max(20),

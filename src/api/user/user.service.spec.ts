@@ -1,6 +1,7 @@
 import { ConflictException, NotFoundException } from '@nestjs/common';
 
 import { PrismaService } from '@/infra/prisma/prisma.service';
+import { RedisService } from '@/infra/redis/redis.service';
 
 import { CreateUserDto } from './dto/create-user.dto';
 import { UserService } from './user.service';
@@ -13,6 +14,9 @@ describe('UserService', () => {
       create: jest.Mock;
       findMany: jest.Mock;
     };
+  };
+  let redisService: {
+    retrieve: jest.Mock;
   };
 
   const dto: CreateUserDto = {
@@ -37,8 +41,17 @@ describe('UserService', () => {
         findMany: jest.fn(),
       },
     };
+    redisService = {
+      retrieve: jest.fn(
+        <T>({ strategy }: { key: string; strategy: () => Promise<T> | T; ttl?: number }) =>
+          Promise.resolve(strategy()) as Promise<T>,
+      ),
+    };
 
-    service = new UserService(prismaService as unknown as PrismaService);
+    service = new UserService(
+      prismaService as unknown as PrismaService,
+      redisService as unknown as RedisService,
+    );
   });
 
   it('creates a user when the email is unique', async () => {
@@ -111,5 +124,40 @@ describe('UserService', () => {
     prismaService.user.findUnique.mockResolvedValue(null);
 
     await expect(service.findById('missing')).rejects.toThrow(NotFoundException);
+  });
+
+  it('finds a user by id for auth via cache strategy', async () => {
+    const safeUser = {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+    };
+    prismaService.user.findUnique.mockResolvedValue(safeUser);
+
+    await expect(service.findByIdForAuth(user.id)).resolves.toEqual(safeUser);
+    expect(redisService.retrieve).toHaveBeenCalledWith(
+      expect.objectContaining({
+        key: `user:id:${user.id}`,
+        ttl: 60,
+      }),
+    );
+    expect(prismaService.user.findUnique).toHaveBeenCalledWith({
+      where: { id: user.id },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+  });
+
+  it('throws when user id does not exist for auth lookup', async () => {
+    prismaService.user.findUnique.mockResolvedValue(null);
+
+    await expect(service.findByIdForAuth('missing')).rejects.toThrow(NotFoundException);
   });
 });

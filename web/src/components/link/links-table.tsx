@@ -6,7 +6,7 @@ import { useState } from 'react';
 import { toast } from 'sonner';
 
 import { formatShortLinkLabel } from '@/lib/brand';
-import { type Link as LinkType } from '@/lib/api';
+import { type Link as LinkType } from '@/services';
 import { QrCodeModal } from './qr-code-modal';
 
 interface LinksTableProps {

@@ -7,7 +7,7 @@ import { toast } from 'sonner';
 import { CreateLinkForm } from '@/components/link/create-link-form';
 import { LinksTable } from '@/components/link/links-table';
 import { useLinks } from '@/hooks/use-links';
-import { linkApi } from '@/lib/api';
+import { linkService } from '@/services';
 
 type StatusFilter = 'all' | 'active' | 'archived';
 type SortOrder = 'asc' | 'desc';
@@ -59,7 +59,7 @@ export default function DashboardPage() {
   const handleExportCsv = async () => {
     setExporting(true);
     try {
-      const blob = await linkApi.exportCsv();
+      const blob = await linkService.exportCsv();
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;

@@ -7,7 +7,7 @@ import { toast } from 'sonner';
 import { z } from 'zod';
 
 import { useLogin } from '@/hooks/use-auth';
-import { ApiError } from '@/lib/api';
+import { ApiError } from '@/services';
 
 const loginSchema = z.object({
   email: z.string().email('Invalid email'),

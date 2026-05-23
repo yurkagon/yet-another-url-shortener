@@ -12,7 +12,7 @@ import { QrPlaceholder } from '@/components/wf/qr-placeholder';
 import { useMe } from '@/hooks/use-auth';
 import { useCreateLink } from '@/hooks/use-links';
 import { formatShortLinkLabel } from '@/lib/brand';
-import { ApiError } from '@/lib/api';
+import { ApiError } from '@/services';
 
 const shortenSchema = z.object({
   url: z.string().url('Please enter a valid URL'),

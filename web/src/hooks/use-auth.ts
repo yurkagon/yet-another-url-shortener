@@ -2,14 +2,14 @@
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
-import { authApi } from '@/lib/api';
+import { authService, type AuthResponse } from '@/services';
 
 export const ME_KEY = ['auth', 'me'] as const;
 
 export function useMe() {
   return useQuery({
     queryKey: ME_KEY,
-    queryFn: authApi.me,
+    queryFn: () => authService.me(),
     retry: false,
     staleTime: 1000 * 60 * 5,
   });
@@ -20,8 +20,8 @@ export function useLogin() {
   const router = useRouter();
 
   return useMutation({
-    mutationFn: authApi.login,
-    onSuccess: (data) => {
+    mutationFn: (data: { email: string; password: string }) => authService.login(data),
+    onSuccess: (data: AuthResponse) => {
       queryClient.setQueryData(ME_KEY, data.user);
       router.push('/dashboard');
     },
@@ -33,8 +33,8 @@ export function useRegister() {
   const router = useRouter();
 
   return useMutation({
-    mutationFn: authApi.register,
-    onSuccess: (data) => {
+    mutationFn: (data: { name: string; email: string; password: string }) => authService.register(data),
+    onSuccess: (data: AuthResponse) => {
       queryClient.setQueryData(ME_KEY, data.user);
       router.push('/dashboard');
     },
@@ -46,7 +46,7 @@ export function useLogout() {
   const router = useRouter();
 
   return useMutation({
-    mutationFn: authApi.logout,
+    mutationFn: () => authService.logout(),
     onSuccess: () => {
       queryClient.clear();
       router.push('/login');

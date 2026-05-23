@@ -6,7 +6,7 @@ import type { CookieOptions, Response } from 'express';
 import type { StringValue } from 'ms';
 import ms from 'ms';
 
-import { UserService } from '@/api/user/user.service';
+import { UserService, toSafeUser } from '@/api/user/user.service';
 import { IS_DEV_ENV } from '@/config';
 
 import { RegisterDto } from './dto/register.dto';
@@ -47,8 +47,7 @@ export class AuthService {
     const { accessToken, refreshToken } = await this.generateTokens(user.id);
     this.setAuthCookies(res, accessToken, refreshToken);
 
-    const { password: _p, ...safe } = user;
-    return { user: safe };
+    return { user: toSafeUser(user) };
   }
 
   public async login(res: Response, loginDto: LoginDto) {
@@ -65,8 +64,7 @@ export class AuthService {
     const { accessToken, refreshToken } = await this.generateTokens(user.id);
     this.setAuthCookies(res, accessToken, refreshToken);
 
-    const { password: _p, ...safe } = user;
-    return { user: safe };
+    return { user: toSafeUser(user) };
   }
 
   public async refresh(res: Response, refreshToken: string): Promise<void> {
@@ -85,7 +83,7 @@ export class AuthService {
       throw new UnauthorizedException('Invalid token type');
     }
 
-    const user = await this.userService.findById(payload.userId);
+    const user = await this.userService.findByIdForAuth(payload.userId);
 
     const { accessToken, refreshToken: newRefreshToken } = await this.generateTokens(user.id);
 

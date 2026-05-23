@@ -18,7 +18,7 @@ jest.mock('argon2', () => ({
 
 describe('AuthService', () => {
   let service: AuthService;
-  let userService: jest.Mocked<Pick<UserService, 'create' | 'findByEmail' | 'findById'>>;
+  let userService: jest.Mocked<Pick<UserService, 'create' | 'findByEmail' | 'findByIdForAuth'>>;
   let configService: { getOrThrow: jest.Mock };
   let jwtService: jest.Mocked<Pick<JwtService, 'signAsync' | 'verifyAsync'>>;
   let response: jest.Mocked<Pick<Response, 'cookie' | 'clearCookie'>>;
@@ -36,7 +36,7 @@ describe('AuthService', () => {
     userService = {
       create: jest.fn(),
       findByEmail: jest.fn(),
-      findById: jest.fn(),
+      findByIdForAuth: jest.fn(),
     };
     configService = {
       getOrThrow: jest.fn((key: string) => {
@@ -161,7 +161,13 @@ describe('AuthService', () => {
 
   it('refreshes tokens for a valid refresh token', async () => {
     jwtService.verifyAsync.mockResolvedValue({ userId: user.id, tokenType: 'refresh' });
-    userService.findById.mockResolvedValue(user);
+    userService.findByIdForAuth.mockResolvedValue({
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+    });
     jwtService.signAsync
       .mockResolvedValueOnce('new-access-token')
       .mockResolvedValueOnce('new-refresh-token');
@@ -171,7 +177,7 @@ describe('AuthService', () => {
     ).resolves.toBeUndefined();
 
     expect(jwtService.verifyAsync).toHaveBeenCalledWith('refresh-token');
-    expect(userService.findById).toHaveBeenCalledWith(user.id);
+    expect(userService.findByIdForAuth).toHaveBeenCalledWith(user.id);
     expect(response.cookie).toHaveBeenCalledWith(
       ACCESS_TOKEN_COOKIE,
       'new-access-token',

@@ -10,7 +10,7 @@ import {
   YAxis,
 } from 'recharts';
 
-import { type DailyClick } from '@/lib/api';
+import { type DailyClick } from '@/services';
 
 interface ClicksChartProps {
   data: DailyClick[];

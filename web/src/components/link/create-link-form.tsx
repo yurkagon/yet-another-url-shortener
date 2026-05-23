@@ -6,7 +6,7 @@ import { toast } from 'sonner';
 import { z } from 'zod';
 
 import { useCreateLink } from '@/hooks/use-links';
-import { ApiError } from '@/lib/api';
+import { ApiError } from '@/services';
 
 const schema = z.object({
   url: z.string().url('Enter a valid URL'),

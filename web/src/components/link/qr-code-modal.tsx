@@ -10,7 +10,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { linkApi } from '@/lib/api';
+import { linkService } from '@/services';
 
 interface QrCodeModalProps {
   code: string | null;
@@ -20,7 +20,7 @@ interface QrCodeModalProps {
 export function QrCodeModal({ code, onClose }: QrCodeModalProps) {
   if (!code) return null;
 
-  const qrUrl = linkApi.qrUrl(code);
+  const qrUrl = linkService.qrUrl(code);
 
   const handleDownload = () => {
     const a = document.createElement('a');

@@ -1,12 +1,12 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import { statisticsApi } from '@/lib/api';
+import { statisticsService } from '@/services';
 
 export function useBrowserStats(code: string) {
   return useQuery({
     queryKey: ['statistics', code, 'browser'],
-    queryFn: () => statisticsApi.browser(code),
+    queryFn: () => statisticsService.browser(code),
     enabled: !!code,
   });
 }
@@ -14,7 +14,7 @@ export function useBrowserStats(code: string) {
 export function useCountryStats(code: string) {
   return useQuery({
     queryKey: ['statistics', code, 'country'],
-    queryFn: () => statisticsApi.country(code),
+    queryFn: () => statisticsService.country(code),
     enabled: !!code,
   });
 }
@@ -22,7 +22,7 @@ export function useCountryStats(code: string) {
 export function useTimelineStats(code: string) {
   return useQuery({
     queryKey: ['statistics', code, 'timeline'],
-    queryFn: () => statisticsApi.timeline(code),
+    queryFn: () => statisticsService.timeline(code),
     enabled: !!code,
   });
 }

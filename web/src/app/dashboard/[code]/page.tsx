@@ -13,7 +13,7 @@ import { QrPlaceholder } from '@/components/wf/qr-placeholder';
 import { formatShortLinkLabel } from '@/lib/brand';
 import { useBrowserStats, useCountryStats, useTimelineStats } from '@/hooks/use-statistics';
 import { useUpdateLink, useDeleteLink } from '@/hooks/use-links';
-import { linkApi, ApiError } from '@/lib/api';
+import { linkService, ApiError } from '@/services';
 import { useQuery } from '@tanstack/react-query';
 
 interface Props {
@@ -30,7 +30,7 @@ export default function AnalyticsPage({ params }: Props) {
 
   const { data: linkData } = useQuery({
     queryKey: ['link', code],
-    queryFn: () => linkApi.getByCode(code),
+    queryFn: () => linkService.getByCode(code),
   });
   const linkId = linkData?.id ?? '';
 
