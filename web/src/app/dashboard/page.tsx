@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { Suspense, useState, useEffect } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 
@@ -14,6 +14,22 @@ type SortOrder = 'asc' | 'desc';
 type ViewMode = 'list' | 'grid';
 
 export default function DashboardPage() {
+  return (
+    <Suspense fallback={<DashboardFallback />}>
+      <DashboardContent />
+    </Suspense>
+  );
+}
+
+function DashboardFallback() {
+  return (
+    <div className="flex h-full items-center justify-center p-7 text-[12px] text-[color:var(--wf-muted)]">
+      Loading…
+    </div>
+  );
+}
+
+function DashboardContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [showCreate, setShowCreate] = useState(searchParams.get('new') === '1');
