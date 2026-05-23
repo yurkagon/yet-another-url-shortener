@@ -16,7 +16,7 @@ import type { Response } from 'express';
 import { ApiOkResponse, ApiOperation, ApiProduces, ApiTags } from '@nestjs/swagger';
 
 import { type User } from '@/api/user/user.service';
-import { Authorization } from '@/common/decorators/authorization.decorator';
+import { Authorization, OptionalAuthorization } from '@/common/decorators/authorization.decorator';
 import { AuthorizedUser } from '@/common/decorators/authorized-user.decorator';
 
 import { CreateLinkDto } from './dto/create-link.dto';
@@ -25,28 +25,31 @@ import { UpdateLinkDto } from './dto/update-link.dto';
 import { LinkService } from './link.service';
 
 @ApiTags('Link')
-@Authorization()
 @Controller('link')
 export class LinkController {
   constructor(private readonly linkService: LinkService) {}
 
+  @Authorization()
   @Get()
   public findAll(@AuthorizedUser() user: User, @Query() query: GetLinksQueryDto) {
     return this.linkService.findAllByUser(user.id, query);
   }
 
+  @OptionalAuthorization()
   @Post()
-  public create(@Body() createLinkDto: CreateLinkDto, @AuthorizedUser() user: User) {
-    return this.linkService.create(createLinkDto, user);
+  public create(@Body() createLinkDto: CreateLinkDto, @AuthorizedUser() user: User | undefined) {
+    return this.linkService.create(createLinkDto, user ?? null);
   }
 
   // ── Mutations by id ─────────────────────────────────────────────────────────
 
+  @Authorization()
   @Patch(':id')
   public update(@Param('id') id: string, @Body() dto: UpdateLinkDto, @AuthorizedUser() user: User) {
     return this.linkService.update(id, user.id, dto);
   }
 
+  @Authorization()
   @Delete(':id')
   @HttpCode(204)
   public async remove(@Param('id') id: string, @AuthorizedUser() user: User) {
@@ -55,6 +58,7 @@ export class LinkController {
 
   // ── Read-only by code ────────────────────────────────────────────────────────
 
+  @Authorization()
   @ApiOperation({ summary: 'Export all user links as CSV' })
   @ApiProduces('text/csv')
   @Get('export/csv')

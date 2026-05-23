@@ -13,7 +13,7 @@ import { CreateLinkDto } from './dto/create-link.dto';
 import { GetLinksQueryDto } from './dto/get-links-query.dto';
 import { UpdateLinkDto } from './dto/update-link.dto';
 
-type LinkCache = { id: string; originalUrl: string };
+type LinkCache = { id: string; originalUrl: string; userId: string | null };
 
 @Injectable()
 export class LinkService {
@@ -25,7 +25,7 @@ export class LinkService {
     private readonly redisService: RedisService,
   ) {}
 
-  public async create(createLinkDto: CreateLinkDto, user: User) {
+  public async create(createLinkDto: CreateLinkDto, user: User | null) {
     const appUrl = this.configService.getOrThrow<string>('APP_URL');
     const code = nanoid(8);
 
@@ -33,11 +33,7 @@ export class LinkService {
       data: {
         originalUrl: createLinkDto.originalUrl,
         code,
-        user: {
-          connect: {
-            id: user.id,
-          },
-        },
+        ...(user ? { user: { connect: { id: user.id } } } : {}),
       },
     });
 
@@ -115,23 +111,26 @@ export class LinkService {
       ttl: 60 * 5,
       strategy: async () => {
         const found = await this.findByCode(code);
-        return { id: found.id, originalUrl: found.originalUrl };
+        return { id: found.id, originalUrl: found.originalUrl, userId: found.userId };
       },
     });
 
-    void this.prismaService.click
-      .create({
-        data: {
-          link: {
-            connect: { id: link.id },
+    // Anonymous links (no owner) are not tracked.
+    if (link.userId) {
+      void this.prismaService.click
+        .create({
+          data: {
+            link: {
+              connect: { id: link.id },
+            },
+            ipAddress: ipAddress || 'unknown',
+            userAgent,
           },
-          ipAddress: ipAddress || 'unknown',
-          userAgent,
-        },
-      })
-      .catch((error: unknown) => {
-        this.logger.warn('Failed to record click', error);
-      });
+        })
+        .catch((error: unknown) => {
+          this.logger.warn('Failed to record click', error);
+        });
+    }
 
     return link.originalUrl;
   }

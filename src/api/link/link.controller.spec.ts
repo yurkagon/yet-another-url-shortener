@@ -36,12 +36,20 @@ describe('LinkController', () => {
     controller = new LinkController(linkService as unknown as LinkService);
   });
 
-  it('delegates link creation to LinkService', async () => {
+  it('delegates link creation to LinkService for an authenticated user', async () => {
     const dto: CreateLinkDto = { originalUrl: 'https://example.com' };
     linkService.create.mockResolvedValue('https://short.test/l/abc12345');
 
     await expect(controller.create(dto, user)).resolves.toBe('https://short.test/l/abc12345');
     expect(linkService.create).toHaveBeenCalledWith(dto, user);
+  });
+
+  it('passes null user to LinkService for an anonymous caller', async () => {
+    const dto: CreateLinkDto = { originalUrl: 'https://example.com' };
+    linkService.create.mockResolvedValue('https://short.test/l/anon1234');
+
+    await expect(controller.create(dto, undefined)).resolves.toBe('https://short.test/l/anon1234');
+    expect(linkService.create).toHaveBeenCalledWith(dto, null);
   });
 
   it('delegates findAll to LinkService with query params', async () => {

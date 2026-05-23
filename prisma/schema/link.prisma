@@ -4,8 +4,8 @@ model Link {
   originalUrl String   @map("original_url")
   isArchived  Boolean  @default(false) @map("is_archived")
 
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId String @map("user_id")
+  user   User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String? @map("user_id")
 
   clicks Click[]
 

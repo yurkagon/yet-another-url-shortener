@@ -26,7 +26,7 @@ type LinkCreateArgs = {
   data: {
     originalUrl: string;
     code: string;
-    user: { connect: { id: string } };
+    user?: { connect: { id: string } };
   };
 };
 
@@ -59,7 +59,7 @@ type RetrieveArgs<T = unknown> = {
   strategy: () => Promise<T> | T;
 };
 
-type LinkCache = { id: string; originalUrl: string };
+type LinkCache = { id: string; originalUrl: string; userId: string | null };
 
 describe('LinkService', () => {
   let service: LinkService;
@@ -148,6 +148,24 @@ describe('LinkService', () => {
     });
   });
 
+  it('creates a short link for an anonymous caller without owner', async () => {
+    prismaService.link.create.mockResolvedValue({
+      id: 'link-2',
+      code: 'abc12345',
+      originalUrl: dto.originalUrl,
+      userId: null,
+    });
+
+    await expect(service.create(dto, null)).resolves.toBe('https://short.test/l/abc12345');
+
+    const createArgs = prismaService.link.create.mock.calls[0][0];
+    expect(createArgs.data).toEqual({
+      originalUrl: dto.originalUrl,
+      code: 'abc12345',
+    });
+    expect(createArgs.data.user).toBeUndefined();
+  });
+
   it('finds a link by code', async () => {
     const link = { id: 'link-1', code: 'abc12345', originalUrl: dto.originalUrl };
     prismaService.link.findUnique.mockResolvedValue(link);
@@ -163,12 +181,17 @@ describe('LinkService', () => {
   });
 
   it('resolves redirects through cache and records a click asynchronously', async () => {
-    const linkCache: LinkCache = { id: 'link-1', originalUrl: dto.originalUrl };
+    const linkCache: LinkCache = {
+      id: 'link-1',
+      originalUrl: dto.originalUrl,
+      userId: user.id,
+    };
     redisService.retrieve.mockImplementation(({ strategy }) => Promise.resolve(strategy()));
     prismaService.link.findUnique.mockResolvedValue({
       id: 'link-1',
       code: 'abc12345',
       originalUrl: dto.originalUrl,
+      userId: user.id,
     });
     prismaService.click.create.mockResolvedValue({ id: 'click-1' });
 
@@ -181,9 +204,13 @@ describe('LinkService', () => {
     expect(retrieveArgs.ttl).toBe(300);
     expect(retrieveArgs.strategy).toEqual(expect.any(Function));
 
-    // Strategy should return { id, originalUrl }
+    // Strategy should return { id, originalUrl, userId }
     const strategyResult = await retrieveArgs.strategy();
-    expect(strategyResult).toEqual({ id: 'link-1', originalUrl: dto.originalUrl });
+    expect(strategyResult).toEqual({
+      id: 'link-1',
+      originalUrl: dto.originalUrl,
+      userId: user.id,
+    });
 
     expect(prismaService.click.create).toHaveBeenCalledWith({
       data: {
@@ -197,7 +224,11 @@ describe('LinkService', () => {
   });
 
   it('stores unknown when redirect IP is empty', async () => {
-    const linkCache: LinkCache = { id: 'link-1', originalUrl: dto.originalUrl };
+    const linkCache: LinkCache = {
+      id: 'link-1',
+      originalUrl: dto.originalUrl,
+      userId: user.id,
+    };
     redisService.retrieve.mockResolvedValue(linkCache);
     prismaService.click.create.mockResolvedValue({ id: 'click-1' });
 
@@ -208,13 +239,32 @@ describe('LinkService', () => {
   });
 
   it('returns the redirect URL even when click recording fails', async () => {
-    const linkCache: LinkCache = { id: 'link-1', originalUrl: dto.originalUrl };
+    const linkCache: LinkCache = {
+      id: 'link-1',
+      originalUrl: dto.originalUrl,
+      userId: user.id,
+    };
     redisService.retrieve.mockResolvedValue(linkCache);
     prismaService.click.create.mockRejectedValue(new Error('database unavailable'));
 
     await expect(service.resolveRedirect('abc12345', '127.0.0.1', 'Mozilla/5.0')).resolves.toBe(
       dto.originalUrl,
     );
+  });
+
+  it('skips click recording for anonymous links (no owner)', async () => {
+    const linkCache: LinkCache = {
+      id: 'link-anon',
+      originalUrl: dto.originalUrl,
+      userId: null,
+    };
+    redisService.retrieve.mockResolvedValue(linkCache);
+
+    await expect(service.resolveRedirect('anon1234', '127.0.0.1', 'Mozilla/5.0')).resolves.toBe(
+      dto.originalUrl,
+    );
+
+    expect(prismaService.click.create).not.toHaveBeenCalled();
   });
 
   it('generates a QR code for an existing short link', async () => {
