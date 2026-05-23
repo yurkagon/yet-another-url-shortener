@@ -21,7 +21,7 @@ COPY . .
 
 RUN pnpm db:generate
 RUN pnpm build:api
-RUN pnpm prune --prod --filter "yet-another-url-shortener..."
+RUN CI=true pnpm prune --prod --ignore-scripts
 
 # ─── runner ──────────────────────────────────────────────────────────────────
 FROM node:24-alpine AS runner
