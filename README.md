@@ -74,7 +74,7 @@ Built as a full-stack TypeScript monorepo — NestJS API + Next.js frontend.
 ### 1. Install dependencies
 
 ```bash
-npm install && npm install --prefix web
+pnpm install
 ```
 
 ### 2. Configure environment
@@ -92,19 +92,19 @@ echo "NEXT_PUBLIC_API_URL=http://localhost:3000/v1" > web/.env.local
 ### 3. Start Postgres + Redis
 
 ```bash
-npm run dev:db
+pnpm dev:db
 ```
 
 ### 4. Prepare the database
 
 ```bash
-npm run db:push && npm run db:seed
+pnpm db:push && pnpm db:seed
 ```
 
 ### 5. Run
 
 ```bash
-npm run dev
+pnpm dev
 ```
 
 | Service  | URL                        |
@@ -203,10 +203,10 @@ All routes are versioned under `/v1`. Full interactive docs at `/docs`.
 ## 🧪 Tests
 
 ```bash
-npm test              # unit tests
-npm run test:e2e      # e2e tests (no DB or Redis required)
-npm run test:all      # both, sequentially
-npm run test:cov      # with coverage report
+pnpm test             # unit tests
+pnpm test:e2e         # e2e tests (no DB or Redis required)
+pnpm test:all         # both, sequentially
+pnpm test:cov         # with coverage report
 ```
 
 E2E tests run against an in-memory store — no real infrastructure needed. Prisma and Redis are replaced by lightweight mock factories in `test/e2e/mocks/`.
@@ -219,13 +219,13 @@ The repo ships a `docker-compose.prod.yml` that bundles the API, Postgres, and R
 
 ```bash
 # Build everything
-npm run build
+pnpm build
 
 # Start API stack (Docker — API + Postgres + Redis)
-npm run prod:api
+pnpm prod:api
 
 # Start frontend
-npm run prod:web
+pnpm prod:web
 ```
 
 Required environment variables:

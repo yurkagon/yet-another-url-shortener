@@ -1,4 +1,16 @@
-import { Body, Controller, Delete, Get, HttpCode, Param, Patch, Post, Query, Res, StreamableFile } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  Param,
+  Patch,
+  Post,
+  Query,
+  Res,
+  StreamableFile,
+} from '@nestjs/common';
 import type { Response } from 'express';
 
 import { ApiOkResponse, ApiOperation, ApiProduces, ApiTags } from '@nestjs/swagger';
@@ -31,11 +43,7 @@ export class LinkController {
   // ── Mutations by id ─────────────────────────────────────────────────────────
 
   @Patch(':id')
-  public update(
-    @Param('id') id: string,
-    @Body() dto: UpdateLinkDto,
-    @AuthorizedUser() user: User,
-  ) {
+  public update(@Param('id') id: string, @Body() dto: UpdateLinkDto, @AuthorizedUser() user: User) {
     return this.linkService.update(id, user.id, dto);
   }
 

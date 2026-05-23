@@ -4,8 +4,10 @@
 !.env.sample
 dist
 node_modules
+**/node_modules
 coverage
 test
 web
+!web/package.json
 *.spec.ts
 *.e2e-spec.ts

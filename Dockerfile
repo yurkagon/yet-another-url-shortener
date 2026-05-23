@@ -2,18 +2,26 @@
 FROM node:24-alpine AS deps
 WORKDIR /app
 
-COPY package*.json ./
-RUN npm ci --ignore-scripts
+RUN corepack enable
+
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
+COPY web/package.json ./web/package.json
+
+RUN pnpm install --frozen-lockfile --ignore-scripts
 
 # ─── builder ─────────────────────────────────────────────────────────────────
 FROM node:24-alpine AS builder
 WORKDIR /app
 
+RUN corepack enable
+
 COPY --from=deps /app/node_modules ./node_modules
+COPY --from=deps /app/web/node_modules ./web/node_modules
 COPY . .
 
-RUN npm run db:generate
-RUN npm run build:api
+RUN pnpm db:generate
+RUN pnpm build:api
+RUN pnpm prune --prod --filter "yet-another-url-shortener..."
 
 # ─── runner ──────────────────────────────────────────────────────────────────
 FROM node:24-alpine AS runner

@@ -59,35 +59,35 @@ Node ≥ 24 is required (`engines` field in `package.json`).
 
 ```bash
 # Infrastructure (Postgres + Redis)
-npm run dev:db
+pnpm dev:db
 
 # API + frontend together
-npm run dev
+pnpm dev
 
 # API only
-npm run dev:api
+pnpm dev:api
 
 # Frontend only
-npm run dev:web
+pnpm dev:web
 
 # Seed dev data (1 user: dev@example.com / password123, 30 links, 150 clicks)
-npm run db:seed
+pnpm db:seed
 ```
 
 ### Tests
 
 ```bash
-npm test                  # unit tests (Jest)
-npm run test:e2e          # e2e tests (in-memory, no DB required)
-npm run test:all          # both, sequentially
+pnpm test                 # unit tests (Jest)
+pnpm test:e2e             # e2e tests (in-memory, no DB required)
+pnpm test:all             # both, sequentially
 ```
 
 ### Database
 
 ```bash
-npm run db:push           # apply schema to DB (no migrations)
-npm run db:generate       # regenerate Prisma client after schema changes
-npm run db:view           # Prisma Studio
+pnpm db:push              # apply schema to DB (no migrations)
+pnpm db:generate          # regenerate Prisma client after schema changes
+pnpm db:view              # Prisma Studio
 ```
 
 ---
