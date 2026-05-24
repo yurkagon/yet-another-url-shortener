@@ -56,7 +56,7 @@ export interface Link {
   code: string;
   originalUrl: string;
   isArchived: boolean;
-  userId: string;
+  userId: string | null;
   createdAt: string;
   updatedAt: string;
   _count: { clicks: number };

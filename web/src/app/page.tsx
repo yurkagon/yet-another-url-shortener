@@ -12,7 +12,12 @@ import { QrPlaceholder } from '@/components/wf/qr-placeholder';
 import { useMe } from '@/hooks/use-auth';
 import { useCreateLink } from '@/hooks/use-links';
 import { formatShortLinkLabel } from '@/lib/brand';
-import { ApiError } from '@/services';
+import { ApiError, linkService } from '@/services';
+
+const extractCodeFromShortUrl = (shortUrl: string): string | null => {
+  const match = /\/l\/([^/?#]+)/.exec(shortUrl);
+  return match ? match[1] : null;
+};
 
 const shortenSchema = z.object({
   url: z.string().url('Please enter a valid URL'),
@@ -32,10 +37,6 @@ export default function LandingPage() {
   } = useForm<ShortenForm>({ resolver: zodResolver(shortenSchema) });
 
   const onSubmit = (data: ShortenForm) => {
-    if (!user) {
-      toast.error('Please sign in to shorten links');
-      return;
-    }
     createLink.mutate(data.url, {
       onSuccess: (short) => {
         setResult({ short, original: data.url });
@@ -52,6 +53,28 @@ export default function LandingPage() {
     if (!result) return;
     void navigator.clipboard.writeText(result.short);
     toast.success('Copied to clipboard!');
+  };
+
+  const downloadQr = async () => {
+    if (!result) return;
+    const code = extractCodeFromShortUrl(result.short);
+    if (!code) {
+      toast.error('Could not derive short code');
+      return;
+    }
+    try {
+      const res = await fetch(linkService.qrUrl(code));
+      if (!res.ok) throw new Error('Failed to fetch QR');
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `link-${code}.png`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch {
+      toast.error('Failed to download QR');
+    }
   };
 
   return (
@@ -111,44 +134,61 @@ export default function LandingPage() {
         </div>
 
         {/* Result preview card */}
-        {result && (
-          <div className="wf-box w-full max-w-[680px] p-[18px]">
-            <div className="flex items-center justify-between gap-4">
-              <div className="flex flex-1 flex-col gap-1.5">
-                <span className="text-[11px] uppercase text-[color:var(--wf-muted)]">
-                  Your short link
-                </span>
-                <a
-                  href={result.short}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="font-[family-name:var(--font-mono)] text-[20px] text-[color:var(--wf-accent)] hover:underline"
-                >
-                  {result.short}
-                </a>
-                <span className="truncate text-[11px] text-[color:var(--wf-muted)]">
-                  ↳ {result.original}
-                </span>
+        {result &&
+          (() => {
+            const code = extractCodeFromShortUrl(result.short);
+            return (
+              <div className="wf-box w-full max-w-[680px] p-[18px]">
+                <div className="flex items-center justify-between gap-4">
+                  <div className="flex flex-1 flex-col gap-1.5">
+                    <span className="text-[11px] uppercase text-[color:var(--wf-muted)]">
+                      Your short link
+                    </span>
+                    <a
+                      href={result.short}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="font-[family-name:var(--font-mono)] text-[20px] text-[color:var(--wf-accent)] hover:underline"
+                    >
+                      {result.short}
+                    </a>
+                    <span className="truncate text-[11px] text-[color:var(--wf-muted)]">
+                      ↳ {result.original}
+                    </span>
+                  </div>
+                  {code ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={linkService.qrUrl(code)}
+                      alt={`QR code for ${result.short}`}
+                      width={88}
+                      height={88}
+                      className="shrink-0 rounded-md border-[1.5px] border-foreground bg-background p-[6px]"
+                    />
+                  ) : (
+                    <QrPlaceholder size={88} />
+                  )}
+                  <div className="flex flex-col gap-2">
+                    <button
+                      type="button"
+                      onClick={copy}
+                      className="wf-btn-outline inline-flex items-center justify-center px-3 py-1.5 text-[12px]"
+                    >
+                      Copy
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => void downloadQr()}
+                      disabled={!code}
+                      className="wf-btn-outline inline-flex items-center justify-center px-3 py-1.5 text-[12px] disabled:opacity-50"
+                    >
+                      ⬇ QR
+                    </button>
+                  </div>
+                </div>
               </div>
-              <QrPlaceholder size={88} />
-              <div className="flex flex-col gap-2">
-                <button
-                  type="button"
-                  onClick={copy}
-                  className="wf-btn-outline inline-flex items-center justify-center px-3 py-1.5 text-[12px]"
-                >
-                  Copy
-                </button>
-                <button
-                  type="button"
-                  className="wf-btn-outline inline-flex items-center justify-center px-3 py-1.5 text-[12px]"
-                >
-                  ⬇ QR
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
+            );
+          })()}
 
         {/* fallback empty preview when no result yet */}
         {!result && (
