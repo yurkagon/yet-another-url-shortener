@@ -11,7 +11,7 @@ export { LinkService } from './link.service';
 export type { Link, LinkListParams, PaginatedLinks } from './link.service';
 
 export { StatisticsService } from './statistics.service';
-export type { DailyClick } from './statistics.service';
+export type { DailyClick, MyOverview, TopLink } from './statistics.service';
 
 export const authService = new AuthService();
 export const linkService = new LinkService();
