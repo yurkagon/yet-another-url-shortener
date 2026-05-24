@@ -2,6 +2,8 @@
 
 # Yet Another URL Shortener
 
+  <img src="./docs/screenshots/main-page.png" alt="Landing page" width="100%" />
+
 **A self-hosted link management tool with redirect analytics, QR codes, and a paper-wireframe UI.**  
 Built as a full-stack TypeScript monorepo — NestJS API + Next.js frontend.
 
@@ -15,11 +17,8 @@ Built as a full-stack TypeScript monorepo — NestJS API + Next.js frontend.
 
 [Features](#-features) · [Quick Start](#-quick-start) · [API](#-api) · [Deploy](#-production) · [Structure](#-project-structure)
 
-<p>
-  <img src="./docs/screenshots/landing-page-mock.png" alt="Landing page" width="32%" />
-  <img src="./docs/screenshots/dashboard-mock.png" alt="Dashboard" width="32%" />
-  <img src="./docs/screenshots/analytics-mock.png" alt="Analytics" width="32%" />
-</p>
+  <img src="./docs/screenshots/links-page.png" alt="Landing page" width="70%" />
+  <img src="./docs/screenshots/analytics-page.png" alt="Dashboard" width="70%" />
 
 </div>
 
@@ -31,10 +30,8 @@ Built as a full-stack TypeScript monorepo — NestJS API + Next.js frontend.
 
 - Create short links with auto-generated 8-character slugs
 - Edit destination URL or rename the slug at any time — 409 conflict guard included
-- Archive links to keep the dashboard clean without breaking redirects
-- Delete links permanently
 - Search across slug and destination URL
-- Filter by status (active / archived) and sort by date
+- Sorting by date
 - Export all links as a CSV file
 
 ### 📊 Analytics
@@ -42,7 +39,7 @@ Built as a full-stack TypeScript monorepo — NestJS API + Next.js frontend.
 - Click timeline — daily aggregation for the last 30 days
 - Browser breakdown via `ua-parser-js`
 - Country breakdown via `geoip-country`
-- Real IP detection: `cf-connecting-ip` → `req.ip` → socket address
+- Real IP detection: `cf-connecting-ip`(Cloudflare) or `req.ip`(Express) or `req.socket.remoteAddress`
 
 ### 📷 QR Codes
 
